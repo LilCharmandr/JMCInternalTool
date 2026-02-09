@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JMC Operations Dashboard</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --ink: #182235;
+      --muted: #5c667a;
+      --accent: #2f5af3;
+      --accent-soft: #e6ecff;
+      --border: #dce1ee;
+      --table-header: #f0f3ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    header {
+      background: var(--card);
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .container {
+      padding: 24px 32px 48px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .summary-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+    }
+
+    .summary-card span {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .summary-card strong {
+      font-size: 24px;
+    }
+
+    nav {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    nav button {
+      border: 1px solid var(--border);
+      background: var(--card);
+      padding: 10px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    nav button.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    section {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.05);
+      margin-bottom: 20px;
+    }
+
+    section.active {
+      display: block;
+    }
+
+    .section-header {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .section-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .section-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin: 12px 0 16px;
+    }
+
+    .section-controls input {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      min-width: 220px;
+      font-size: 14px;
+    }
+
+    .section-controls a {
+      color: var(--accent);
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .table-wrapper {
+      overflow: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 700px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--table-header);
+      font-weight: 600;
+    }
+
+    tbody tr:hover {
+      background: #f8f9ff;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .loading {
+      color: var(--muted);
+      font-size: 14px;
+      padding: 12px 0;
+    }
+
+    footer {
+      margin-top: 32px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>JMC Operations Dashboard</h1>
+    <p>Centralized tracking for programs, trainings, compliance, vendors, insurance, costs, and schedules.</p>
+  </header>
+
+  <div class="container">
+    <div class="summary-grid" id="summaryGrid">
+      <div class="summary-card">
+        <span>Programs</span>
+        <strong id="summaryPrograms">—</strong>
+      </div>
+      <div class="summary-card">
+        <span>Trainings</span>
+        <strong id="summaryTrainings">—</strong>
+      </div>
+      <div class="summary-card">
+        <span>Compliance Camps</span>
+        <strong id="summaryCompliance">—</strong>
+      </div>
+      <div class="summary-card">
+        <span>Vendor Contracts</span>
+        <strong id="summaryVendors">—</strong>
+      </div>
+      <div class="summary-card">
+        <span>Insurance Policies</span>
+        <strong id="summaryInsurance">—</strong>
+      </div>
+      <div class="summary-card">
+        <span>Program Cost Rows</span>
+        <strong id="summaryCosts">—</strong>
+      </div>
+    </div>
+
+    <nav id="sectionNav"></nav>
+
+    <section id="section-programs" class="active" data-section>
+      <div class="section-header">
+        <h2>Programs Overview</h2>
+        <p>Key program details, dates, contract status, and site information.</p>
+      </div>
+      <div class="section-controls">
+        <input type="search" placeholder="Search programs..." data-search="programs" />
+        <a href="Master Programs.html" target="_blank">Open source file</a>
+      </div>
+      <div class="table-wrapper" data-table="programs"></div>
+    </section>
+
+    <section id="section-trainings" data-section>
+      <div class="section-header">
+        <h2>Training Schedule</h2>
+        <p>Staff trainings, summits, and on-site sessions with dates and locations.</p>
+      </div>
+      <div class="section-controls">
+        <input type="search" placeholder="Search trainings..." data-search="trainings" />
+        <a href="Master Trainings.html" target="_blank">Open source file</a>
+      </div>
+      <div class="table-wrapper" data-table="trainings"></div>
+    </section>
+
+    <section id="section-compliance" data-section>
+      <div class="section-header">
+        <h2>Compliance Checklist</h2>
+        <p>Background checks, waivers, certifications, and training compliance status.</p>
+      </div>
+      <div class="section-controls">
+        <input type="search" placeholder="Search compliance..." data-search="compliance" />
+        <a href="Compliance Checklist.html" target="_blank">Open source file</a>
+      </div>
+      <div class="table-wrapper" data-table="compliance"></div>
+    </section>
+
+    <section id="section-vendors" data-section>
+      <div class="section-header">
+        <h2>Vendor Contracts</h2>
+        <p>Contracts, vendor contacts, and documentation for Mosaic and Residential programs.</p>
+      </div>
+      <div class="section-controls">
+        <input type="search" placeholder="Search vendor contracts..." data-search="vendors" />
+        <a href="Vendor Contracts - Mosaic.html" target="_blank">Mosaic contracts</a>
+        <a href="Vendor Contracts - Residential.html" target="_blank">Residential contracts</a>
+      </div>
+      <div class="table-wrapper" data-table="vendors"></div>
+    </section>
+
+    <section id="section-insurance" data-section>
+      <div class="section-header">
+        <h2>Insurance Policies</h2>
+        <p>Policy coverage, billing dates, and confirmation links.</p>
+      </div>
+      <div class="section-controls">
+        <input type="search" placeholder="Search insurance..." data-search="insurance" />
+        <a href="Insurance.html" target="_blank">Open source file</a>
+      </div>
+      <div class="table-wrapper" data-table="insurance"></div>
+    </section>
+
+    <section id="section-costs" data-section>
+      <div class="section-header">
+        <h2>Program Costs</h2>
+        <p>Cost per camp day, participant counts, and staffing metrics.</p>
+      </div>
+      <div class="section-controls">
+        <input type="search" placeholder="Search costs..." data-search="costs" />
+        <a href="Program Costs.html" target="_blank">Open source file</a>
+      </div>
+      <div class="table-wrapper" data-table="costs"></div>
+    </section>
+
+    <section id="section-schedule" data-section>
+      <div class="section-header">
+        <h2>Calendar & Scheduling</h2>
+        <p>Central entry points for calendar views and schedule trackers.</p>
+      </div>
+      <div class="section-controls">
+        <a href="Annual Calendar.html" target="_blank">Annual Calendar</a>
+        <a href="Compliance Calendar.html" target="_blank">Compliance Calendar</a>
+        <a href="Schedule Tracker.html" target="_blank">Schedule Tracker</a>
+        <a href="Quick Dates.html" target="_blank">Quick Dates</a>
+        <a href="School Dates.html" target="_blank">School Dates</a>
+      </div>
+      <div class="loading">Use the links above to open detailed calendar exports.</div>
+    </section>
+  </div>
+
+  <footer>Dashboard generated from existing JMC operational files.</footer>
+
+  <script>
+    const datasets = {
+      programs: {
+        file: "Master Programs.html",
+        summaryTarget: "summaryPrograms",
+      },
+      trainings: {
+        file: "Master Trainings.html",
+        summaryTarget: "summaryTrainings",
+      },
+      compliance: {
+        file: "Compliance Checklist.html",
+        summaryTarget: "summaryCompliance",
+      },
+      vendors: {
+        file: ["Vendor Contracts - Mosaic.html", "Vendor Contracts - Residential.html"],
+        summaryTarget: "summaryVendors",
+      },
+      insurance: {
+        file: "Insurance.html",
+        summaryTarget: "summaryInsurance",
+      },
+      costs: {
+        file: "Program Costs.html",
+        summaryTarget: "summaryCosts",
+      },
+    };
+
+    const nav = document.getElementById("sectionNav");
+    const sections = Array.from(document.querySelectorAll("[data-section]"));
+
+    sections.forEach((section) => {
+      const id = section.id.replace("section-", "");
+      const label = section.querySelector("h2").textContent;
+      const button = document.createElement("button");
+      button.textContent = label;
+      button.dataset.target = section.id;
+      if (section.classList.contains("active")) {
+        button.classList.add("active");
+      }
+      button.addEventListener("click", () => {
+        sections.forEach((item) => item.classList.remove("active"));
+        nav.querySelectorAll("button").forEach((btn) => btn.classList.remove("active"));
+        section.classList.add("active");
+        button.classList.add("active");
+      });
+      nav.appendChild(button);
+
+      const tableWrapper = section.querySelector("[data-table]");
+      if (tableWrapper) {
+        tableWrapper.innerHTML = '<div class="loading">Loading data...</div>';
+        loadDataset(id, tableWrapper);
+      }
+    });
+
+    async function loadDataset(key, container) {
+      const config = datasets[key];
+      if (!config) return;
+
+      const files = Array.isArray(config.file) ? config.file : [config.file];
+      const tables = [];
+
+      for (const file of files) {
+        const response = await fetch(file);
+        const text = await response.text();
+        const doc = new DOMParser().parseFromString(text, "text/html");
+        const table = doc.querySelector("table.waffle");
+        if (!table) continue;
+
+        const rows = Array.from(table.querySelectorAll("tbody tr"));
+        if (!rows.length) continue;
+
+        const headerCells = rows[0].querySelectorAll("td, th");
+        const headers = Array.from(headerCells).map((cell) => cleanText(cell.textContent));
+
+        const bodyRows = rows.slice(1).map((row) =>
+          Array.from(row.querySelectorAll("td")).map((cell) => cleanText(cell.textContent))
+        );
+
+        tables.push({ headers, rows: bodyRows });
+      }
+
+      if (!tables.length) {
+        container.innerHTML = '<div class="loading">No data found.</div>';
+        return;
+      }
+
+      const merged = mergeTables(tables);
+      renderTable(container, merged.headers, merged.rows);
+      updateSummary(config.summaryTarget, merged.rows.length);
+      setupSearch(key, merged.rows, merged.headers);
+    }
+
+    function mergeTables(tables) {
+      if (tables.length === 1) return tables[0];
+      const headers = tables[0].headers;
+      const rows = tables.flatMap((table) => table.rows.filter((row) => row.some((cell) => cell)));
+      return { headers, rows };
+    }
+
+    function renderTable(container, headers, rows) {
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const headerRow = document.createElement("tr");
+
+      headers.forEach((header) => {
+        const th = document.createElement("th");
+        th.textContent = header || "—";
+        headerRow.appendChild(th);
+      });
+
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+      rows.forEach((row) => {
+        if (!row.some((cell) => cell)) return;
+        const tr = document.createElement("tr");
+        row.forEach((cell) => {
+          const td = document.createElement("td");
+          td.textContent = cell || "";
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      container.innerHTML = "";
+      container.appendChild(table);
+    }
+
+    function updateSummary(targetId, value) {
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.textContent = value.toLocaleString();
+      }
+    }
+
+    function setupSearch(key, rows, headers) {
+      const input = document.querySelector(`[data-search="${key}"]`);
+      if (!input) return;
+      const container = document.querySelector(`[data-table="${key}"]`);
+
+      input.addEventListener("input", () => {
+        const query = input.value.trim().toLowerCase();
+        const filtered = rows.filter((row) => row.join(" ").toLowerCase().includes(query));
+        renderTable(container, headers, filtered);
+      });
+    }
+
+    function cleanText(value) {
+      return value.replace(/\s+/g, " ").trim();
+    }
+  </script>
+</body>
+</html>
