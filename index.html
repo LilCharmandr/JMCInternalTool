@@ -28,7 +28,7 @@
     .nav-header .logo-text { font-weight: 700; font-size: 14px; letter-spacing: -0.02em; }
     .nav-header .logo-text small { display: block; font-weight: 400; font-size: 10px; color: rgba(255,255,255,0.45); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 1px; }
     .nav-section-label { padding: 14px 14px 4px; font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.3); font-weight: 600; }
-    .nav-links { flex: 1; padding: 4px 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.12) transparent; }
+    .nav-links { flex: 1; padding: 4px 0; overflow-y: auto; scrollbar-width: auto; scrollbar-color: rgba(255,255,255,0.18) rgba(255,255,255,0.05); }
     .nav-link { display: flex; align-items: center; gap: 9px; padding: 7px 14px; color: rgba(255,255,255,0.6); text-decoration: none; font-size: 12.5px; cursor: pointer; border-left: 3px solid transparent; transition: background 0.12s, color 0.12s; }
     .nav-link:hover { background: rgba(255,255,255,0.06); color: #fff; }
     .nav-link.active { background: rgba(30,95,138,0.3); color: #fff; border-left-color: var(--accent); }
@@ -137,7 +137,8 @@
 
     .source-link { font-size: 10px; color: var(--muted); margin-top: 6px; }
     .source-link a { color: var(--accent); text-decoration: none; }
-    ::-webkit-scrollbar { width: 5px; height: 5px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #c4c8d0; border-radius: 3px; }
+    ::-webkit-scrollbar { width: 12px; height: 12px; } ::-webkit-scrollbar-track { background: var(--bg); border-radius: 6px; } ::-webkit-scrollbar-thumb { background: #b0b7c3; border-radius: 6px; border: 2px solid var(--bg); } ::-webkit-scrollbar-thumb:hover { background: #8f97a5; }
+    * { scrollbar-width: auto; scrollbar-color: #b0b7c3 var(--bg); }
 
     /* ═══════════════════════════════════════════════════════════════════════
        ANNUAL CALENDAR — Modern Redesign
@@ -173,32 +174,36 @@
     .cal-legend-item.dimmed { opacity: 0.35; }
     .cal-legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
 
-    /* ── TIMELINE (GANTT) VIEW ── */
-    .cal-timeline { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 14px; }
-    .cal-tl-scroll { overflow-x: auto; overflow-y: auto; max-height: 65vh; }
-    .cal-tl-grid { display: grid; min-width: max-content; position: relative; }
-    .cal-tl-header { display: contents; position: sticky; top: 0; z-index: 5; }
-    .cal-tl-month-row { display: contents; }
-    .cal-tl-month-cell { padding: 8px 0; text-align: center; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); background: var(--accent-soft); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 5; }
-    .cal-tl-day-row { display: contents; }
-    .cal-tl-day-cell { padding: 3px 0; text-align: center; font-size: 9px; color: var(--muted); background: var(--table-header); border-bottom: 1px solid var(--border); position: sticky; top: 33px; z-index: 4; font-weight: 500; }
-    .cal-tl-day-cell.weekend { background: #f5f0f0; color: #b09090; }
-    .cal-tl-day-cell.today { background: var(--accent); color: #fff; font-weight: 700; border-radius: 0; }
-    .cal-tl-label-col { width: 160px; min-width: 160px; position: sticky; left: 0; z-index: 6; background: var(--card); }
-    .cal-tl-label-hdr { padding: 8px 12px; font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
-    .cal-tl-label { padding: 6px 12px; font-size: 11px; font-weight: 600; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); display: flex; align-items: center; gap: 6px; white-space: nowrap; background: var(--card); }
-    .cal-tl-label .prog-dot { width: 8px; height: 8px; border-radius: 3px; flex-shrink: 0; }
-    .cal-tl-label small { font-weight: 400; color: var(--muted); font-size: 10px; }
-    .cal-tl-body { display: contents; }
-    .cal-tl-row { display: contents; }
-    .cal-tl-cell { border-bottom: 1px solid #f0f1f3; border-right: 1px solid #f5f6f8; height: 32px; position: relative; }
-    .cal-tl-cell.weekend { background: #faf8f8; }
-    .cal-tl-cell.today { background: rgba(30,95,138,0.06); }
-    .cal-tl-bar { position: absolute; top: 4px; bottom: 4px; border-radius: 6px; display: flex; align-items: center; padding: 0 8px; font-size: 10px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; z-index: 2; transition: filter 0.15s, transform 0.15s; min-width: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
-    .cal-tl-bar:hover { filter: brightness(1.1); transform: scaleY(1.15); z-index: 3; }
-    .cal-tl-bar .bar-text { overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
-    .cal-tl-today-line { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--error); z-index: 3; pointer-events: none; }
-    .cal-tl-today-dot { position: absolute; top: -3px; left: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--error); }
+    /* ── SCHEDULE (VERTICAL TIMELINE) VIEW ── */
+    .cal-schedule { position: relative; padding-left: 140px; }
+    .cal-schedule-month { margin-bottom: 28px; position: relative; }
+    .cal-schedule-month-hdr { position: sticky; top: 44px; z-index: 5; background: var(--bg); padding: 8px 0; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+    .cal-schedule-month-hdr .month-pill { background: var(--accent); color: #fff; padding: 6px 16px; border-radius: 99px; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; }
+    .cal-schedule-month-hdr .month-line { flex: 1; height: 1px; background: var(--border); }
+    .cal-schedule-month-hdr .month-count { font-size: 11px; color: var(--muted); font-weight: 500; }
+    .cal-schedule-spine { position: absolute; left: 122px; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--accent) 0%, var(--border) 100%); border-radius: 2px; z-index: 1; }
+    .cal-schedule-row { display: flex; align-items: flex-start; gap: 0; margin-bottom: 6px; position: relative; }
+    .cal-schedule-date { position: absolute; left: -140px; width: 110px; text-align: right; padding-top: 10px; }
+    .cal-schedule-date .sched-day { font-size: 22px; font-weight: 700; color: var(--ink); line-height: 1; }
+    .cal-schedule-date .sched-weekday { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin-top: 1px; }
+    .cal-schedule-dot { position: absolute; left: -22px; top: 12px; width: 12px; height: 12px; border-radius: 50%; border: 2.5px solid var(--card); z-index: 2; box-shadow: 0 0 0 2px var(--accent); }
+    .cal-schedule-dot.today { box-shadow: 0 0 0 3px var(--error); animation: pulse-dot 2s infinite; }
+    @keyframes pulse-dot { 0%,100% { box-shadow: 0 0 0 3px var(--error); } 50% { box-shadow: 0 0 0 6px rgba(185,28,28,0.15); } }
+    .cal-schedule-events { flex: 1; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+    .cal-sched-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.18s; position: relative; overflow: hidden; }
+    .cal-sched-card:hover { border-color: var(--accent); box-shadow: 0 6px 20px rgba(0,0,0,0.06); transform: translateX(4px); }
+    .cal-sched-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 4px 0 0 4px; }
+    .cal-sched-card .sched-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; font-weight: 700; }
+    .cal-sched-card .sched-info { flex: 1; min-width: 0; }
+    .cal-sched-card .sched-title { font-size: 14px; font-weight: 600; margin-bottom: 1px; color: var(--ink); }
+    .cal-sched-card .sched-sub { font-size: 11px; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .cal-sched-card .sched-badge { font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 600; white-space: nowrap; }
+    .cal-sched-card .sched-dates { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+    .cal-sched-card .sched-dates svg { width: 12px; height: 12px; flex-shrink: 0; }
+    .cal-sched-card .sched-dur { font-size: 10px; padding: 3px 10px; border-radius: 99px; background: var(--bg); color: var(--muted); font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+    .cal-sched-today-banner { background: linear-gradient(135deg, var(--accent) 0%, #2980b9 100%); color: #fff; border-radius: 12px; padding: 12px 18px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 14px rgba(30,95,138,0.2); }
+    .cal-sched-today-banner .today-marker { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 99px; }
+    .cal-sched-today-banner .today-date { font-size: 14px; font-weight: 600; }
 
     /* ── LIST VIEW ── */
     .cal-list { display: flex; flex-direction: column; gap: 10px; }
@@ -1027,8 +1032,8 @@ function buildCalendarPage(mod) {
     <div class="cal-controls" id="calControls">
       <div class="cal-view-group">
         <button class="cal-view-btn active" data-view="timeline" onclick="switchCalView('timeline')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h10M4 14h14M4 18h8"/></svg>
-          Timeline
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Schedule
         </button>
         <button class="cal-view-btn" data-view="list" onclick="switchCalView('list')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
@@ -1169,141 +1174,116 @@ function renderCalendarContent() {
   else if (calCurrentView === 'month') renderMonthView(container, events);
 }
 
-// ── TIMELINE VIEW ──
+// ── SCHEDULE (VERTICAL TIMELINE) VIEW ──
 function renderTimelineView(container, events) {
-  // Determine date range — show the full year span of events
-  const allStarts = events.map(e => new Date(e.start));
-  const allEnds = events.map(e => new Date(e.end));
-  let minDate = new Date(Math.min(...allStarts));
-  let maxDate = new Date(Math.max(...allEnds));
-
-  // Pad to start/end of month
-  minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
-  maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth() + 1, 0);
-
-  const totalDays = daysBetween(minDate, maxDate);
-  const dayWidth = 28;
+  const sorted = [...events].sort((a, b) => new Date(a.start) - new Date(b.start));
   const today = new Date(); today.setHours(0,0,0,0);
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const shortDays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-  // Group events by program (preserving a nice order)
-  const programOrder = ['AU','AU Staff','Embark','Embark Staff','Mosaic','Mosaic Staff','Vibe','Vibe Staff','Khidma','Khidma Staff','CPOI','CPOI Staff','Al-Ilm','Al-Ilm Staff','Olympia','Olympia Staff','Other'];
-  const byProgram = {};
-  events.forEach(e => {
-    if (!byProgram[e.program]) byProgram[e.program] = [];
-    byProgram[e.program].push(e);
-  });
-  const orderedPrograms = programOrder.filter(p => byProgram[p]);
-  // Add any programs not in our predefined order
-  Object.keys(byProgram).forEach(p => { if (!orderedPrograms.includes(p)) orderedPrograms.push(p); });
-
-  // Build months header
-  let monthCells = '';
-  let dayCells = '';
-  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  let d = new Date(minDate);
-  let monthSpans = [];
-  let prevMonth = -1;
-  let monthCount = 0;
-  for (let i = 0; i < totalDays; i++) {
-    const m = d.getMonth();
-    if (m !== prevMonth) {
-      if (monthCount > 0) monthSpans.push(monthCount);
-      monthCount = 0;
-      prevMonth = m;
-    }
-    monthCount++;
-    d.setDate(d.getDate() + 1);
-  }
-  monthSpans.push(monthCount);
-
-  d = new Date(minDate);
-  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  let monthIdx = 0;
-  let spanI = 0;
-  for (const span of monthSpans) {
-    const mDate = new Date(d);
-    monthCells += `<div class="cal-tl-month-cell" style="grid-column: span ${span}">${monthNames[mDate.getMonth()]} ${mDate.getFullYear()}</div>`;
-    for (let j = 0; j < span; j++) {
-      const isWeekend = d.getDay() === 0 || d.getDay() === 6;
-      const isToday = d.getTime() === today.getTime();
-      const cls = isToday ? ' today' : isWeekend ? ' weekend' : '';
-      dayCells += `<div class="cal-tl-day-cell${cls}" title="${d.toLocaleDateString()}">${d.getDate()}</div>`;
-      d.setDate(d.getDate() + 1);
-    }
-  }
-
-  // Build rows
-  let rowsHtml = '';
-  orderedPrograms.forEach(prog => {
-    const progEvents = byProgram[prog];
-    const c = getProgColor(prog);
-
-    rowsHtml += `<div class="cal-tl-row">`;
-    rowsHtml += `<div class="cal-tl-label"><span class="prog-dot" style="background:${c.bg}"></span>${prog}</div>`;
-
-    // Create day cells for this row
-    d = new Date(minDate);
-    for (let i = 0; i < totalDays; i++) {
-      const isWeekend = d.getDay() === 0 || d.getDay() === 6;
-      const isToday = d.getTime() === today.getTime();
-      const cls = isToday ? ' today' : isWeekend ? ' weekend' : '';
-      rowsHtml += `<div class="cal-tl-cell${cls}" data-date="${d.toISOString().split('T')[0]}"></div>`;
-      d.setDate(d.getDate() + 1);
-    }
-    rowsHtml += `</div>`;
+  // Group by start-date, then by month
+  const byMonth = {};
+  sorted.forEach(e => {
+    const d = new Date(e.start);
+    const monthKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if (!byMonth[monthKey]) byMonth[monthKey] = {};
+    const dateKey = e.start;
+    if (!byMonth[monthKey][dateKey]) byMonth[monthKey][dateKey] = [];
+    byMonth[monthKey][dateKey].push(e);
   });
 
-  const gridCols = `160px repeat(${totalDays}, ${dayWidth}px)`;
+  // Program initials for icon
+  function getInitials(prog) {
+    return prog.split(/[\s-]+/).map(w => w[0]).join('').toUpperCase().slice(0,2);
+  }
 
-  let html = `<div class="cal-timeline"><div class="cal-tl-scroll"><div class="cal-tl-grid" style="grid-template-columns:${gridCols}">`;
-  // Month header row
-  html += `<div class="cal-tl-label-hdr" style="grid-row:1">Program</div>${monthCells}`;
-  // Day header row
-  html += `<div class="cal-tl-label-hdr" style="grid-row:2;font-size:9px">Day</div>${dayCells}`;
-  // Body rows
-  html += rowsHtml;
-  html += `</div></div></div>`;
+  let html = '';
 
+  // Today banner
+  html += `<div class="cal-sched-today-banner">
+    <span class="today-marker">Today</span>
+    <span class="today-date">${dayNames[today.getDay()]}, ${monthNames[today.getMonth()]} ${today.getDate()}, ${today.getFullYear()}</span>
+  </div>`;
+
+  html += '<div class="cal-schedule">';
+  html += '<div class="cal-schedule-spine"></div>';
+
+  Object.keys(byMonth).sort().forEach(monthKey => {
+    const [y, m] = monthKey.split('-').map(Number);
+    const dateGroups = byMonth[monthKey];
+    const totalEvts = Object.values(dateGroups).reduce((s, arr) => s + arr.length, 0);
+
+    html += '<div class="cal-schedule-month">';
+    html += `<div class="cal-schedule-month-hdr">
+      <span class="month-pill">${monthNames[m-1]} ${y}</span>
+      <span class="month-line"></span>
+      <span class="month-count">${totalEvts} event${totalEvts !== 1 ? 's' : ''}</span>
+    </div>`;
+
+    Object.keys(dateGroups).sort().forEach(dateKey => {
+      const dateEvents = dateGroups[dateKey];
+      const d = new Date(dateKey);
+      const isToday = d.getTime() === today.getTime();
+      const isPast = d < today;
+
+      html += `<div class="cal-schedule-row">`;
+      html += `<div class="cal-schedule-date">
+        <div class="sched-day" style="${isPast && !isToday ? 'opacity:0.4' : ''}">${d.getDate()}</div>
+        <div class="sched-weekday" style="${isPast && !isToday ? 'opacity:0.4' : ''}">${shortDays[d.getDay()]}</div>
+      </div>`;
+      html += `<div class="cal-schedule-dot${isToday ? ' today' : ''}" style="background:${isToday ? 'var(--error)' : isPast ? 'var(--border)' : 'var(--accent)'}"></div>`;
+      html += `<div class="cal-schedule-events">`;
+
+      dateEvents.forEach(evt => {
+        const c = getProgColor(evt.program);
+        const start = new Date(evt.start);
+        const end = new Date(evt.end);
+        const days = daysBetween(start, end);
+
+        html += `<div class="cal-sched-card" onclick="showEventPopup(calendarEvents.find(e=>e.id==='${evt.id}'),event)" style="--evt-color:${c.bg}">
+          <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:${c.bg};border-radius:4px 0 0 4px;"></div>
+          <div class="sched-icon" style="background:${c.soft};color:${c.bg}">${getInitials(evt.program)}</div>
+          <div class="sched-info">
+            <div class="sched-title">${esc(evt.event)}</div>
+            <div class="sched-sub">
+              <span class="sched-badge" style="background:${c.soft};color:${c.bg}">${esc(evt.program)}</span>
+              <span class="sched-dates">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                ${formatDate(evt.start)} – ${formatDate(evt.end)}
+              </span>
+            </div>
+          </div>
+          <div class="sched-dur">${days} day${days !== 1 ? 's' : ''}</div>
+        </div>`;
+      });
+
+      html += '</div></div>';
+    });
+
+    html += '</div>';
+  });
+
+  html += '</div>';
   container.innerHTML = html;
 
-  // Now overlay the event bars using absolute positioning within cells
-  const grid = container.querySelector('.cal-tl-grid');
-  let rowIdx = 0;
-  orderedPrograms.forEach(prog => {
-    const progEvents = byProgram[prog];
-    const c = getProgColor(prog);
-    const gridRowNum = rowIdx + 3; // +2 for header rows, +1 for 1-indexed
-
-    progEvents.forEach(evt => {
-      const evtStart = new Date(evt.start);
-      const evtEnd = new Date(evt.end);
-      const startCol = daysBetween(minDate, evtStart); // 1-based column in the day section
-      const span = daysBetween(evtStart, evtEnd);
-      if (startCol < 1 || startCol > totalDays) return;
-
-      const bar = document.createElement('div');
-      bar.className = 'cal-tl-bar';
-      bar.style.cssText = `grid-row:${gridRowNum};grid-column:${startCol+1}/span ${Math.min(span, totalDays - startCol + 1)};background:${c.bg};color:${c.text};`;
-      bar.innerHTML = `<span class="bar-text">${esc(evt.event)}</span>`;
-      bar.title = `${evt.event}\n${formatDate(evt.start)} – ${formatDate(evt.end)}\n${span} day${span!==1?'s':''}`;
-      bar.addEventListener('click', (e) => showEventPopup(evt, e));
-      grid.appendChild(bar);
-    });
-    rowIdx++;
-  });
-
-  // Today line
-  if (today >= minDate && today <= maxDate) {
-    const todayCol = daysBetween(minDate, today);
-    const line = document.createElement('div');
-    line.className = 'cal-tl-today-line';
-    line.style.cssText = `grid-column:${todayCol+1};grid-row:1/-1;`;
-    line.innerHTML = '<div class="cal-tl-today-dot"></div>';
-    grid.appendChild(line);
-
-    // Auto-scroll to today
-    setTimeout(() => line.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }), 200);
-  }
+  // Auto-scroll to nearest upcoming event
+  setTimeout(() => {
+    const todayStr = today.toISOString().split('T')[0];
+    const rows = container.querySelectorAll('.cal-schedule-row');
+    for (const row of rows) {
+      const dot = row.querySelector('.cal-schedule-dot.today');
+      if (dot) { row.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+    }
+    // If no today, find first future event
+    const dots = container.querySelectorAll('.cal-schedule-dot');
+    for (const dot of dots) {
+      if (dot.style.background.includes('accent')) {
+        dot.closest('.cal-schedule-row')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+    }
+  }, 200);
 }
 
 // ── LIST VIEW ──
