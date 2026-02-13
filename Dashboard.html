@@ -3,502 +3,233 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>JMC Executive Dashboard — Overview</title>
+  <title>JMC Executive Dashboard — Summary View</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f2f4f8;
-      --card: #ffffff;
-      --ink: #1a1d24;
-      --muted: #5c6470;
-      --accent: #1e5f8a;
-      --accent-soft: #e3eef4;
-      --accent-hover: #164a6b;
-      --border: #d8dde6;
+      --bg: #f2f4f8; --card: #ffffff; --ink: #1a1d24; --muted: #5c6470;
+      --accent: #1e5f8a; --accent-soft: #e3eef4; --border: #d8dde6;
       --table-header: #f0f4f8;
-      --success: #1e7a4a;
-      --success-bg: #e3f2e9;
-      --warning: #b8860b;
-      --warning-bg: #fef5e0;
-      --error: #b91c1c;
-      --error-bg: #fde8e8;
-      --info: #1e5f8a;
-      --info-bg: #e3eef4;
+      --success: #1e7a4a; --success-bg: #e3f2e9;
+      --warning: #b8860b; --warning-bg: #fef5e0;
+      --error: #b91c1c; --error-bg: #fde8e8;
+      --info: #1e5f8a; --info-bg: #e3eef4;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "DM Sans", "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--ink); }
 
-    body {
-      font-family: "DM Sans", "Segoe UI", system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--ink);
-    }
-
-    header {
-      background: var(--ink);
-      color: #fff;
-      padding: 20px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    header h1 { font-size: 20px; font-weight: 700; }
-    header .subtitle { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 2px; }
-    header a { color: var(--accent-soft); font-size: 13px; text-decoration: none; }
+    header { background: var(--ink); color: #fff; padding: 18px 28px; display: flex; align-items: center; justify-content: space-between; }
+    header h1 { font-size: 18px; font-weight: 700; }
+    header .sub { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+    header a { color: var(--accent-soft); font-size: 12px; text-decoration: none; }
     header a:hover { text-decoration: underline; }
 
-    .container { max-width: 1200px; margin: 0 auto; padding: 24px 28px 48px; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 20px 24px 40px; }
 
-    /* KPI Grid */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 12px;
-      margin-bottom: 20px;
-    }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .kpi-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; position: relative; overflow: hidden; }
+    .kpi-card::before { content:''; position: absolute; top:0; left:0; width:3px; height:100%; background: var(--accent); }
+    .kpi-card.green::before { background: var(--success); } .kpi-card.yellow::before { background: var(--warning); } .kpi-card.red::before { background: var(--error); }
+    .kpi-card .kl { display: block; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+    .kpi-card .kv { font-size: 22px; font-weight: 700; }
 
-    .kpi-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-      position: relative;
-      overflow: hidden;
-    }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+    .card h2 { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+    .card .desc { color: var(--muted); font-size: 11px; margin-bottom: 10px; }
 
-    .kpi-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; width: 4px; height: 100%;
-      background: var(--accent);
-      border-radius: 2px 0 0 2px;
-    }
-
-    .kpi-card.green::before { background: var(--success); }
-    .kpi-card.yellow::before { background: var(--warning); }
-    .kpi-card.red::before { background: var(--error); }
-
-    .kpi-card span { display: block; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
-    .kpi-card strong { font-size: 24px; font-weight: 700; }
-    .kpi-card .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
-
-    /* Grid Layouts */
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
     @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
 
-    /* Cards */
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-      margin-bottom: 16px;
-    }
+    .table-wrap { overflow: auto; border-radius: 8px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 400px; }
+    th, td { border-bottom: 1px solid var(--border); padding: 7px 10px; text-align: left; }
+    th { background: var(--table-header); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+    tbody tr:hover { background: #f7f8fa; }
 
-    .card h2 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-    .card .desc { color: var(--muted); font-size: 12px; margin-bottom: 14px; }
+    td.st-needed { background: var(--warning-bg); color: var(--warning); font-weight: 600; }
+    td.st-complete { background: var(--success-bg); color: var(--success); font-weight: 600; }
+    td.st-na { background: #eef0f2; color: var(--muted); }
+    td.st-pending { background: var(--error-bg); color: var(--error); font-weight: 600; }
 
-    /* Alert bars */
-    .alert-bar {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 14px; border-radius: 10px; margin-bottom: 8px; font-size: 13px;
-    }
+    .heatmap { display: grid; gap: 2px; font-size: 10px; }
+    .hm-cell { padding: 5px 6px; text-align: center; border-radius: 3px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hm-hdr { background: var(--table-header); color: var(--muted); font-size: 9px; text-transform: uppercase; }
+    .hm-green { background: #d1fae5; color: #065f46; } .hm-yellow { background: #fef3c7; color: #92400e; } .hm-red { background: #fecaca; color: #991b1b; } .hm-gray { background: #f3f4f6; color: #9ca3af; }
+
+    .alert-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; font-size: 12px; }
     .alert-bar.warn { background: var(--warning-bg); border: 1px solid #f0d88a; }
-    .alert-bar.error { background: var(--error-bg); border: 1px solid #f5c6c6; }
+    .alert-bar.err { background: var(--error-bg); border: 1px solid #f5c6c6; }
     .alert-bar.info { background: var(--info-bg); border: 1px solid #a7cfe0; }
+    .alert-bar.ok { background: var(--success-bg); border: 1px solid #a7d7b8; }
     .alert-bar a { color: var(--accent); text-decoration: none; font-weight: 600; }
 
-    /* Tables */
-    .table-wrapper {
-      overflow: auto;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-    }
-
-    table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 600px; }
-    th, td { border-bottom: 1px solid var(--border); padding: 9px 12px; text-align: left; }
-    th { background: var(--table-header); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
-    tbody tr:hover { background: #fafbfc; }
-
-    /* Pills */
-    .pill { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
-    .pill-success { background: var(--success-bg); color: var(--success); }
-    .pill-warning { background: var(--warning-bg); color: var(--warning); }
-    .pill-error { background: var(--error-bg); color: var(--error); }
-    .pill-info { background: var(--info-bg); color: var(--info); }
-    .pill-na { background: #eef0f2; color: var(--muted); }
-
-    /* Progress Bar */
-    .progress-bar { background: #e5e7eb; border-radius: 999px; height: 8px; overflow: hidden; }
-    .progress-bar .fill { height: 100%; border-radius: 999px; transition: width 0.6s ease; }
-    .progress-bar .fill.green { background: var(--success); }
-    .progress-bar .fill.yellow { background: var(--warning); }
-    .progress-bar .fill.red { background: var(--error); }
-    .progress-bar .fill.blue { background: var(--accent); }
-
-    /* Heatmap */
-    .heatmap { display: grid; gap: 2px; font-size: 11px; }
-    .heatmap-cell { padding: 6px 8px; text-align: center; border-radius: 4px; font-weight: 600; }
-    .heatmap-cell.green { background: #d1fae5; color: #065f46; }
-    .heatmap-cell.yellow { background: #fef3c7; color: #92400e; }
-    .heatmap-cell.orange { background: #fed7aa; color: #9a3412; }
-    .heatmap-cell.red { background: #fecaca; color: #991b1b; }
-    .heatmap-cell.gray { background: #f3f4f6; color: #9ca3af; }
-    .heatmap-cell.header { background: var(--table-header); color: var(--muted); font-weight: 600; font-size: 10px; text-transform: uppercase; }
-
-    /* Camp Grid */
-    .camp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
-    .camp-card {
-      border: 1px solid var(--border); border-radius: 10px; padding: 14px;
-      transition: box-shadow 0.15s;
-    }
-    .camp-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .camp-card .camp-name { font-weight: 600; font-size: 14px; margin-bottom: 3px; }
-    .camp-card .camp-location { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
-    .camp-card .camp-meta { font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; margin-top: 6px; }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-    .status-dot.green { background: var(--success); }
-    .status-dot.yellow { background: var(--warning); }
-    .status-dot.red { background: var(--error); }
-
-    /* Severity */
-    .severity-1 { color: #fff; background: #dc2626; }
-    .severity-2 { color: #fff; background: #ea580c; }
-    .severity-3 { color: #92400e; background: #fbbf24; }
-    .severity-4 { color: #065f46; background: #6ee7b7; }
-
-    footer { text-align: center; font-size: 12px; color: var(--muted); padding: 24px; }
+    .empty { padding: 24px; text-align: center; color: var(--muted); font-size: 13px; }
+    footer { text-align: center; font-size: 11px; color: var(--muted); padding: 20px; }
     footer a { color: var(--accent); text-decoration: none; }
   </style>
 </head>
 <body>
   <header>
-    <div>
-      <h1>JMC Executive Dashboard</h1>
-      <div class="subtitle">Organization-wide operational health — 2026 Season</div>
-    </div>
-    <a href="index.html">← Back to Full Platform</a>
+    <div><h1>JMC Executive Dashboard</h1><div class="sub">Read-only summary — edit data in the full platform</div></div>
+    <a href="index.html">Open Full Platform →</a>
   </header>
 
   <div class="container">
-    <!-- Alerts -->
-    <div style="margin-bottom:16px">
-      <div class="alert-bar error">⚠️ <strong>Severity 1 Escalation:</strong> Active incident at Mosaic — assigned to Safety Lead. <a href="index.html#escalation">View Details →</a></div>
-      <div class="alert-bar warn">⏰ <strong>Compliance:</strong> 14 staff across 4 camps have YPT expiring within 30 days. <a href="index.html#compliance">View Compliance →</a></div>
-      <div class="alert-bar info">📋 <strong>Finance:</strong> Bank reconciliation pending for 3 camps (January). <a href="index.html#finance">View Finance →</a></div>
-    </div>
-
-    <!-- KPIs -->
-    <div class="kpi-grid">
-      <div class="kpi-card green"><span>Active Camps</span><strong id="kpi-camps">12</strong><div class="kpi-sub">2026 Season</div></div>
-      <div class="kpi-card"><span>Programs</span><strong id="kpi-programs">—</strong><div class="kpi-sub">From master list</div></div>
-      <div class="kpi-card"><span>Overall Compliance</span><strong id="kpi-compliance">—</strong><div class="kpi-sub">Across all camps</div></div>
-      <div class="kpi-card yellow"><span>Open Escalations</span><strong>3</strong><div class="kpi-sub">1 Severity 1</div></div>
-      <div class="kpi-card"><span>Budget Utilized</span><strong>62%</strong><div class="kpi-sub">$1.2M / $1.9M</div></div>
-      <div class="kpi-card green"><span>Enrollment</span><strong>78%</strong><div class="kpi-sub">1,247 / 1,600</div></div>
-      <div class="kpi-card"><span>Vendor Contracts</span><strong id="kpi-vendors">—</strong><div class="kpi-sub">Active vendors</div></div>
-      <div class="kpi-card"><span>Insurance Policies</span><strong id="kpi-insurance">—</strong><div class="kpi-sub">Active coverage</div></div>
-    </div>
-
-    <!-- Camp Overview -->
-    <div class="card">
-      <h2>Camp Status Overview</h2>
-      <div class="desc">Each camp's enrollment progress and compliance score</div>
-      <div class="camp-grid" id="campGrid"></div>
-    </div>
-
-    <!-- Two columns: Compliance Heatmap + Financial -->
+    <div id="alerts"></div>
+    <div class="kpi-grid" id="kpis"></div>
     <div class="grid-2">
-      <div class="card">
-        <h2>Compliance Heatmap</h2>
-        <div class="desc">Requirements by camp — % complete</div>
-        <div id="complianceHeatmap" style="overflow:auto"></div>
-      </div>
-      <div class="card">
-        <h2>Financial Overview</h2>
-        <div class="desc">Budget vs actual by camp</div>
-        <div id="financialOverview"></div>
-      </div>
+      <div class="card"><h2>Compliance Heatmap</h2><div class="desc">Status by camp from Compliance Checklist</div><div id="heatmap"></div></div>
+      <div class="card"><h2>Module Data Summary</h2><div class="desc">Row counts across all data modules</div><div id="summary"></div></div>
     </div>
-
-    <!-- Two columns: Enrollment + Incidents -->
-    <div class="grid-2">
-      <div class="card">
-        <h2>Enrollment Progress</h2>
-        <div class="desc">Applications → Enrolled by camp</div>
-        <div id="enrollmentTracker"></div>
-      </div>
-      <div class="card">
-        <h2>Incident Trends</h2>
-        <div class="desc">Last 6 months</div>
-        <div id="incidentTrends"></div>
-      </div>
-    </div>
-
-    <!-- Active Escalations -->
-    <div class="card">
-      <h2>Active Escalations</h2>
-      <div class="desc">Currently open escalated issues across all camps</div>
-      <div class="table-wrapper">
-        <table>
-          <thead><tr><th>ID</th><th>Date</th><th>Camp</th><th>Category</th><th>Severity</th><th>Status</th><th>Days Open</th></tr></thead>
-          <tbody id="escalationTable"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Upcoming Deadlines -->
-    <div class="card">
-      <h2>Upcoming Deadlines</h2>
-      <div class="desc">Next 30 days across all modules</div>
-      <div class="table-wrapper">
-        <table>
-          <thead><tr><th>Date</th><th>Module</th><th>Camp</th><th>Item</th><th>Status</th></tr></thead>
-          <tbody id="deadlinesBody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Data Tables -->
-    <div class="card">
-      <h2>Programs Overview</h2>
-      <div class="desc">Master program list loaded from data files</div>
-      <div class="table-wrapper" id="programsTable"><div style="padding:16px;color:var(--muted)">Loading...</div></div>
-    </div>
-
-    <div class="card">
-      <h2>Compliance Checklist</h2>
-      <div class="desc">Background checks, YPT, CPR, and state-specific requirements</div>
-      <div class="table-wrapper" id="complianceTable"><div style="padding:16px;color:var(--muted)">Loading...</div></div>
-    </div>
+    <div class="card"><h2>Programs</h2><div class="desc">From Master Programs source data</div><div id="tbl-programs"></div></div>
+    <div class="card"><h2>Compliance Checklist</h2><div class="desc">Background checks, YPT, CPR, waivers</div><div id="tbl-compliance"></div></div>
+    <div class="card"><h2>Vendors</h2><div class="desc">Vendor contracts across all programs</div><div id="tbl-vendors"></div></div>
+    <div class="card"><h2>Insurance Policies</h2><div class="desc">Policy registry and billing</div><div id="tbl-insurance"></div></div>
   </div>
 
-  <footer>
-    JMC Internal Dashboards Platform v1.0 · <a href="index.html">Open Full Platform →</a>
-  </footer>
+  <footer>JMC Internal Dashboards Platform — <a href="index.html">Open Full Platform to edit data →</a></footer>
 
   <script>
-    // ── Data ──
-    const CAMPS = [
-      { name: "Olympia",      location: "Georgia",  state: "GA", status: "green", enrolled: 142, target: 180, compliance: 94 },
-      { name: "Mosaic",       location: "Florida",  state: "FL", status: "yellow", enrolled: 198, target: 220, compliance: 82 },
-      { name: "Al Ummah",     location: "Texas",    state: "TX", status: "green", enrolled: 95, target: 120, compliance: 91 },
-      { name: "Al Ilm",       location: "Dallas",   state: "TX", status: "yellow", enrolled: 76, target: 100, compliance: 78 },
-      { name: "CPOI",         location: "Various",  state: "NJ", status: "green", enrolled: 45, target: 60, compliance: 96 },
-      { name: "Roots",        location: "Atlanta",  state: "GA", status: "green", enrolled: 88, target: 100, compliance: 90 },
-      { name: "Embark",       location: "Various",  state: "TX", status: "yellow", enrolled: 64, target: 80, compliance: 85 },
-      { name: "Changemakers", location: "Atlanta",  state: "GA", status: "green", enrolled: 110, target: 140, compliance: 88 },
-      { name: "Khidma",       location: "Texas",    state: "TX", status: "green", enrolled: 55, target: 70, compliance: 92 },
-      { name: "Retreat",      location: "Georgia",  state: "GA", status: "green", enrolled: 120, target: 130, compliance: 97 },
-      { name: "Vibe",         location: "Texas",    state: "TX", status: "yellow", enrolled: 130, target: 160, compliance: 80 },
-      { name: "National Meeting", location: "TBD",  state: "",   status: "green", enrolled: 124, target: 140, compliance: 95 }
-    ];
+    const STORE_KEY = 'jmc_platform_v2';
+    function getStore() { try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch { return {}; } }
+    function getData(id) { return getStore()[id] || null; }
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
-    const COMPLIANCE_REQS = ["YPT", "BG Check", "CPR", "Active Shooter", "Safeguard", "Mandated Rep.*", "Fingerprint*", "Driving Waiver"];
-
-    const ESCALATIONS = [
-      { id: "ESC-001", date: "Feb 11", camp: "Mosaic", cat: "Safety", sev: 1, status: "In Progress", days: 2 },
-      { id: "ESC-002", date: "Feb 09", camp: "Al Ilm", cat: "Behavioral", sev: 2, status: "Assigned", days: 4 },
-      { id: "ESC-003", date: "Feb 08", camp: "Embark", cat: "Compliance", sev: 2, status: "Under Investigation", days: 5 },
-      { id: "ESC-004", date: "Feb 05", camp: "Olympia", cat: "Operational", sev: 3, status: "Pending Review", days: 8 },
-      { id: "ESC-005", date: "Feb 03", camp: "Changemakers", cat: "Medical", sev: 3, status: "In Progress", days: 10 },
-      { id: "ESC-006", date: "Feb 01", camp: "Vibe", cat: "Financial", sev: 4, status: "In Progress", days: 12 },
-    ];
-
-    const DEADLINES = [
-      { date: "Feb 15", module: "Finance", camp: "All", item: "January bank reconciliation due", status: "Pending" },
-      { date: "Feb 20", module: "Compliance", camp: "Mosaic", item: "4 staff YPT expiring", status: "Urgent" },
-      { date: "Feb 25", module: "Sites", camp: "Olympia", item: "Site contract renewal deadline", status: "In Progress" },
-      { date: "Mar 01", module: "Insurance", camp: "All", item: "Annual policy renewal", status: "Upcoming" },
-      { date: "Mar 05", module: "People", camp: "Changemakers", item: "NPT application review deadline", status: "Upcoming" },
-      { date: "Mar 10", module: "Transportation", camp: "Mosaic", item: "Bus contract signing", status: "Upcoming" },
-      { date: "Mar 12", module: "Healthcare", camp: "All", item: "HCP assignment confirmation", status: "Upcoming" },
-      { date: "Mar 15", module: "Compliance", camp: "Al Ilm", item: "3 staff CPR expiring", status: "Warning" },
-    ];
-
-    // ── Helpers ──
-    function cleanText(t) { return (t || "").replace(/\s+/g, " ").trim(); }
-
-    async function parseTable(file) {
-      try {
-        const res = await fetch(file);
-        const html = await res.text();
-        const doc = new DOMParser().parseFromString(html, "text/html");
-        const table = doc.querySelector("table.waffle");
-        if (!table) return { headers: [], rows: [] };
-        const rows = Array.from(table.querySelectorAll("tbody tr"));
-        if (!rows.length) return { headers: [], rows: [] };
-        const headers = Array.from(rows[0].querySelectorAll("td, th")).map(c => cleanText(c.textContent));
-        const body = rows.slice(1).map(r => Array.from(r.querySelectorAll("td")).map(c => cleanText(c.textContent)));
-        return { headers, rows: body.filter(r => r.some(c => c)) };
-      } catch (_) { return { headers: [], rows: [] }; }
+    function statusClass(val) {
+      const v = (val || '').toLowerCase();
+      if (v.includes('needed') || v.includes('expir')) return 'st-needed';
+      if (v.includes('complete') || v.includes('confirm') || v.includes('done') || v.includes('pass') || v.includes('verified') || v.includes('yes')) return 'st-complete';
+      if (v.includes('n/a') || v === 'na' || v === '—') return 'st-na';
+      if (v.includes('pending') || v.includes('overdue') || v.includes('missing')) return 'st-pending';
+      return '';
     }
 
-    function renderTable(container, headers, rows, statusCols = []) {
-      const table = document.createElement("table");
-      const thead = document.createElement("thead");
-      const tr = document.createElement("tr");
-      headers.forEach(h => { const th = document.createElement("th"); th.textContent = h || "—"; tr.appendChild(th); });
-      thead.appendChild(tr);
-      table.appendChild(thead);
-      const tbody = document.createElement("tbody");
-      rows.forEach(row => {
-        if (!row.some(c => c)) return;
-        const r = document.createElement("tr");
+    function renderTable(containerId, moduleId, statusCols) {
+      const container = document.getElementById(containerId);
+      const data = getData(moduleId);
+      if (!data || !data.rows.length) { container.innerHTML = '<div class="empty">No data — <a href="index.html#' + moduleId + '">import in full platform</a></div>'; return; }
+      const sc = statusCols || [];
+      let html = '<div class="table-wrap"><table><thead><tr>';
+      data.headers.forEach(h => { html += `<th>${esc(h)}</th>`; });
+      html += '</tr></thead><tbody>';
+      data.rows.slice(0, 50).forEach(row => {
+        html += '<tr>';
         row.forEach((cell, i) => {
-          const td = document.createElement("td");
-          if (statusCols.includes(i)) {
-            const pill = document.createElement("span");
-            const v = (cell||"").toLowerCase();
-            pill.className = v.includes("needed") ? "pill pill-warning" : v.includes("n/a") ? "pill pill-na" : v.includes("complete") ? "pill pill-success" : "pill pill-info";
-            pill.textContent = cell || "—";
-            td.appendChild(pill);
-          } else { td.textContent = cell || ""; }
-          r.appendChild(td);
+          const cls = sc.includes(i) ? statusClass(cell) : '';
+          html += `<td class="${cls}">${esc(cell)}</td>`;
         });
-        tbody.appendChild(r);
+        html += '</tr>';
       });
-      table.appendChild(tbody);
-      container.innerHTML = "";
-      container.appendChild(table);
+      html += '</tbody></table></div>';
+      if (data.rows.length > 50) html += `<div style="font-size:11px;color:var(--muted);margin-top:6px">Showing 50 of ${data.rows.length} rows. <a href="index.html#${moduleId}">View all →</a></div>`;
+      container.innerHTML = html;
     }
 
-    // ── Build UI ──
-    function buildCampGrid() {
-      document.getElementById("campGrid").innerHTML = CAMPS.map(c => `
-        <div class="camp-card">
-          <div class="camp-name">${c.name}</div>
-          <div class="camp-location">${c.location}</div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:12px">
-            <div class="status-dot ${c.status}"></div>
-            ${c.status === 'green' ? 'On Track' : 'Needs Attention'}
-          </div>
-          <div class="camp-meta">
-            <span>Enrolled: ${c.enrolled}/${c.target}</span>
-            <span>Comp: ${c.compliance}%</span>
-          </div>
-          <div style="margin-top:8px">
-            <div class="progress-bar"><div class="fill ${c.compliance >= 90 ? 'green' : c.compliance >= 70 ? 'yellow' : 'red'}" style="width:${c.compliance}%"></div></div>
-          </div>
-        </div>
-      `).join("");
+    // ── KPIs ──
+    const programs = getData('programs');
+    const compliance = getData('compliance');
+    const vendors = getData('vendors');
+    const insurance = getData('insurance');
+    const participants = getData('participants');
+    const trainings = getData('trainings');
+    const escalations = getData('escalations');
+
+    const programCount = programs ? programs.rows.length : 0;
+    const vendorCount = vendors ? vendors.rows.length : 0;
+    const insuranceCount = insurance ? insurance.rows.length : 0;
+    const participantCount = participants ? participants.rows.length : 0;
+    const trainingCount = trainings ? trainings.rows.length : 0;
+
+    let compRate = 0, compNeeded = 0;
+    const compStatusCols = [3,4,5,6,7,8,9];
+    if (compliance && compliance.rows.length) {
+      let total = 0, complete = 0;
+      compliance.rows.forEach(r => {
+        compStatusCols.forEach(ci => {
+          const v = (r[ci]||'').toLowerCase();
+          if (v && v !== 'n/a' && v !== 'na' && v !== '—') {
+            total++;
+            if (v.includes('complete') || v.includes('confirm') || v.includes('done') || v.includes('pass') || v.includes('verified') || v.includes('yes')) complete++;
+            else compNeeded++;
+          }
+        });
+      });
+      compRate = total > 0 ? Math.round((complete / total) * 100) : 0;
     }
 
-    function buildHeatmap() {
-      const container = document.getElementById("complianceHeatmap");
-      container.innerHTML = `
-        <div class="heatmap" style="grid-template-columns:120px repeat(${COMPLIANCE_REQS.length},1fr)">
-          <div class="heatmap-cell header">Camp</div>
-          ${COMPLIANCE_REQS.map(r => `<div class="heatmap-cell header">${r}</div>`).join("")}
-          ${CAMPS.filter(c => c.state).map(camp => {
-            return `<div class="heatmap-cell header" style="text-align:left">${camp.name}</div>` +
-              COMPLIANCE_REQS.map(req => {
-                const isNA = req.includes("*") && !((req.includes("Mandated") && camp.state === "GA") || (req.includes("Finger") && camp.state === "FL"));
-                if (isNA) return `<div class="heatmap-cell gray">N/A</div>`;
-                const v = 60 + Math.floor(Math.random() * 40);
-                return `<div class="heatmap-cell ${v >= 95 ? 'green' : v >= 80 ? 'yellow' : v >= 60 ? 'orange' : 'red'}">${v}%</div>`;
-              }).join("");
-          }).join("")}
-        </div>
-      `;
+    const openEsc = escalations ? escalations.rows.filter(r => { const s = (r[6]||'').toLowerCase(); return s && !s.includes('resolved') && !s.includes('closed'); }).length : 0;
+
+    document.getElementById('kpis').innerHTML = `
+      <div class="kpi-card"><span class="kl">Programs</span><div class="kv">${programCount || '—'}</div></div>
+      <div class="kpi-card ${compRate >= 80 ? 'green' : compRate >= 50 ? 'yellow' : compRate > 0 ? 'red' : ''}"><span class="kl">Compliance Rate</span><div class="kv">${compRate > 0 ? compRate + '%' : '—'}</div></div>
+      <div class="kpi-card ${compNeeded > 0 ? 'yellow' : ''}"><span class="kl">Items Needed</span><div class="kv">${compNeeded || '—'}</div></div>
+      <div class="kpi-card ${openEsc > 0 ? 'red' : ''}"><span class="kl">Open Escalations</span><div class="kv">${openEsc}</div></div>
+      <div class="kpi-card"><span class="kl">Vendors</span><div class="kv">${vendorCount || '—'}</div></div>
+      <div class="kpi-card"><span class="kl">Insurance</span><div class="kv">${insuranceCount || '—'}</div></div>
+      <div class="kpi-card"><span class="kl">Participants</span><div class="kv">${participantCount || '—'}</div></div>
+      <div class="kpi-card"><span class="kl">Trainings</span><div class="kv">${trainingCount || '—'}</div></div>
+    `;
+
+    // ── Alerts ──
+    let alertHtml = '';
+    if (programCount === 0) alertHtml += '<div class="alert-bar info">📥 No data loaded. <a href="index.html#settings">Open full platform to import source files →</a></div>';
+    if (compNeeded > 0) alertHtml += `<div class="alert-bar warn">⏰ <strong>Compliance:</strong> ${compNeeded} items still needed. <a href="index.html#compliance">View →</a></div>`;
+    if (openEsc > 0) alertHtml += `<div class="alert-bar err">⚠️ <strong>Escalations:</strong> ${openEsc} open. <a href="index.html#escalations">View →</a></div>`;
+    if (programCount > 0 && compNeeded === 0 && openEsc === 0) alertHtml += '<div class="alert-bar ok">✅ All clear.</div>';
+    document.getElementById('alerts').innerHTML = alertHtml;
+
+    // ── Heatmap ──
+    const heatmapEl = document.getElementById('heatmap');
+    if (compliance && compliance.rows.length) {
+      const reqHeaders = compStatusCols.map(ci => compliance.headers[ci] || 'Col ' + ci);
+      let hm = `<div class="heatmap" style="grid-template-columns:100px repeat(${reqHeaders.length},1fr)">`;
+      hm += '<div class="hm-cell hm-hdr">Camp</div>';
+      reqHeaders.forEach(h => { hm += `<div class="hm-cell hm-hdr">${esc(h)}</div>`; });
+      compliance.rows.forEach(row => {
+        hm += `<div class="hm-cell hm-hdr" style="text-align:left;font-size:10px">${esc(row[0]||'—')}</div>`;
+        compStatusCols.forEach(ci => {
+          const v = (row[ci]||'').toLowerCase();
+          let cls = 'hm-gray';
+          if (v.includes('complete') || v.includes('confirm') || v.includes('done') || v.includes('pass') || v.includes('verified')) cls = 'hm-green';
+          else if (v.includes('needed') || v.includes('expir')) cls = 'hm-yellow';
+          else if (v.includes('pending') || v.includes('missing') || v.includes('overdue')) cls = 'hm-red';
+          hm += `<div class="hm-cell ${cls}">${esc(row[ci]||'—')}</div>`;
+        });
+      });
+      hm += '</div>';
+      heatmapEl.innerHTML = hm;
+    } else {
+      heatmapEl.innerHTML = '<div class="empty">Import Compliance data in the <a href="index.html#compliance">full platform</a></div>';
     }
 
-    function buildFinancial() {
-      const container = document.getElementById("financialOverview");
-      container.innerHTML = CAMPS.filter(c => c.state).slice(0, 8).map(c => {
-        const budget = Math.round(80000 + Math.random() * 200000);
-        const actual = Math.round(40000 + Math.random() * 150000);
-        const pct = Math.round((actual / budget) * 100);
-        return `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><strong>${c.name}</strong><span style="color:var(--muted)">$${(actual/1000).toFixed(0)}K / $${(budget/1000).toFixed(0)}K (${pct}%)</span></div><div class="progress-bar"><div class="fill ${pct > 90 ? 'red' : pct > 70 ? 'yellow' : 'blue'}" style="width:${Math.min(pct,100)}%"></div></div></div>`;
-      }).join("");
-    }
+    // ── Summary ──
+    const mods = [
+      { id: 'programs', title: 'Programs' }, { id: 'compliance', title: 'Compliance' },
+      { id: 'finance', title: 'Finance / Costs' }, { id: 'vendors', title: 'Vendors' },
+      { id: 'insurance', title: 'Insurance' }, { id: 'participants', title: 'Participants' },
+      { id: 'trainings', title: 'Trainings' }, { id: 'calendar', title: 'Calendar' },
+      { id: 'transportation', title: 'Transportation' }, { id: 'safety', title: 'Safety' },
+      { id: 'sites', title: 'Sites' }, { id: 'escalations', title: 'Escalations' },
+      { id: 'healthcare', title: 'Healthcare' }, { id: 'subsidy', title: 'Subsidy' },
+      { id: 'marketing', title: 'Marketing' }, { id: 'evaluations', title: 'Evaluations' },
+      { id: 'content', title: 'Content' },
+    ];
+    let sumHtml = '<div class="table-wrap"><table><thead><tr><th>Module</th><th>Rows</th><th>Status</th></tr></thead><tbody>';
+    mods.forEach(m => {
+      const d = getData(m.id);
+      const c = d ? d.rows.length : 0;
+      sumHtml += `<tr><td><strong>${esc(m.title)}</strong></td><td>${c}</td><td>${c > 0 ? '<span style="color:var(--success)">● Active</span>' : '<span style="color:var(--muted)">○ Empty</span>'}</td></tr>`;
+    });
+    sumHtml += '</tbody></table></div>';
+    document.getElementById('summary').innerHTML = sumHtml;
 
-    function buildEnrollment() {
-      document.getElementById("enrollmentTracker").innerHTML = CAMPS.filter(c => c.state).map(c => {
-        const pct = Math.round((c.enrolled / c.target) * 100);
-        return `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><strong>${c.name}</strong><span style="color:var(--muted)">${c.enrolled}/${c.target} (${pct}%)</span></div><div class="progress-bar"><div class="fill ${pct>=90?'green':pct>=70?'blue':'yellow'}" style="width:${Math.min(pct,100)}%"></div></div></div>`;
-      }).join("");
-    }
-
-    function buildIncidents() {
-      const months = ["Sep", "Oct", "Nov", "Dec", "Jan", "Feb"];
-      const data = [2, 5, 3, 7, 4, 3];
-      const max = Math.max(...data);
-      document.getElementById("incidentTrends").innerHTML = `
-        <div style="display:flex;align-items:flex-end;gap:8px;height:140px;padding:10px 0">
-          ${months.map((m, i) => `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><span style="font-size:11px;font-weight:600">${data[i]}</span><div style="width:100%;background:${data[i]>=5?'var(--error-bg)':'var(--accent-soft)'};border-radius:4px 4px 0 0;height:${(data[i]/max)*100}px"></div><span style="font-size:10px;color:var(--muted)">${m}</span></div>`).join("")}
-        </div>
-        <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:4px">Monthly incident count</div>
-      `;
-    }
-
-    function buildEscalations() {
-      document.getElementById("escalationTable").innerHTML = ESCALATIONS.map(e => `
-        <tr>
-          <td><strong>${e.id}</strong></td><td>${e.date}</td><td>${e.camp}</td><td>${e.cat}</td>
-          <td><span class="pill severity-${e.sev}" style="padding:2px 8px;border-radius:6px;font-size:11px">Sev ${e.sev}</span></td>
-          <td><span class="pill pill-warning">${e.status}</span></td>
-          <td>${e.days}d</td>
-        </tr>
-      `).join("");
-    }
-
-    function buildDeadlines() {
-      document.getElementById("deadlinesBody").innerHTML = DEADLINES.map(d => `
-        <tr>
-          <td><strong>${d.date}</strong></td>
-          <td><span class="pill pill-info">${d.module}</span></td>
-          <td>${d.camp}</td>
-          <td>${d.item}</td>
-          <td><span class="pill ${d.status==='Urgent'?'pill-error':d.status==='Warning'?'pill-warning':d.status==='In Progress'?'pill-info':'pill-na'}">${d.status}</span></td>
-        </tr>
-      `).join("");
-    }
-
-    // ── Load Data From Files ──
-    async function loadData() {
-      // Programs
-      const programs = await parseTable("Master Programs.html");
-      if (programs.rows.length) {
-        document.getElementById("kpi-programs").textContent = programs.rows.length;
-        renderTable(document.getElementById("programsTable"), programs.headers, programs.rows, [6, 7]);
-      }
-
-      // Compliance
-      const compliance = await parseTable("Compliance Checklist.html");
-      if (compliance.rows.length) {
-        const total = compliance.rows.length * 7;
-        const needed = compliance.rows.reduce((acc, r) => acc + r.filter(c => (c||"").toLowerCase().includes("needed")).length, 0);
-        const pct = total > 0 ? Math.round(((total - needed) / total) * 100) : 0;
-        document.getElementById("kpi-compliance").textContent = pct + "%";
-        renderTable(document.getElementById("complianceTable"), compliance.headers, compliance.rows, [3,4,5,6,7,8,9]);
-      }
-
-      // Vendors
-      const v1 = await parseTable("Vendor Contracts - Mosaic.html");
-      const v2 = await parseTable("Vendor Contracts - Residential.html");
-      const vendorCount = v1.rows.length + v2.rows.length;
-      document.getElementById("kpi-vendors").textContent = vendorCount || "—";
-
-      // Insurance
-      const ins = await parseTable("Insurance.html");
-      document.getElementById("kpi-insurance").textContent = ins.rows.length || "—";
-    }
-
-    // ── Init ──
-    buildCampGrid();
-    buildHeatmap();
-    buildFinancial();
-    buildEnrollment();
-    buildIncidents();
-    buildEscalations();
-    buildDeadlines();
-    loadData();
+    // ── Data Tables ──
+    renderTable('tbl-programs', 'programs', [6, 7]);
+    renderTable('tbl-compliance', 'compliance', compStatusCols);
+    renderTable('tbl-vendors', 'vendors');
+    renderTable('tbl-insurance', 'insurance');
   </script>
 </body>
 </html>

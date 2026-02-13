@@ -6,2024 +6,825 @@
   <title>JMC Internal Dashboards Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f2f4f8;
-      --card: #ffffff;
-      --ink: #1a1d24;
-      --muted: #5c6470;
-      --accent: #1e5f8a;
-      --accent-soft: #e3eef4;
-      --accent-hover: #164a6b;
-      --border: #d8dde6;
-      --table-header: #f0f4f8;
-      --success: #1e7a4a;
-      --success-bg: #e3f2e9;
-      --warning: #b8860b;
-      --warning-bg: #fef5e0;
-      --error: #b91c1c;
-      --error-bg: #fde8e8;
-      --info: #1e5f8a;
-      --info-bg: #e3eef4;
-      --nav-width: 240px;
-      --nav-collapsed: 56px;
+      --bg: #f2f4f8; --card: #ffffff; --ink: #1a1d24; --muted: #5c6470;
+      --accent: #1e5f8a; --accent-soft: #e3eef4; --accent-hover: #164a6b;
+      --border: #d8dde6; --table-header: #f0f4f8;
+      --success: #1e7a4a; --success-bg: #e3f2e9;
+      --warning: #b8860b; --warning-bg: #fef5e0;
+      --error: #b91c1c; --error-bg: #fde8e8;
+      --info: #1e5f8a; --info-bg: #e3eef4;
+      --nav-width: 232px;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "DM Sans", "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--ink); display: flex; min-height: 100vh; }
 
-    body {
-      font-family: "DM Sans", "Segoe UI", system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--ink);
-      display: flex;
-      min-height: 100vh;
-    }
+    /* ── NAV ── */
+    .nav-rail { width: var(--nav-width); background: var(--ink); color: #e8eaed; flex-shrink: 0; position: fixed; top: 0; left: 0; height: 100vh; display: flex; flex-direction: column; z-index: 100; }
+    .nav-header { padding: 14px 14px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
+    .nav-header .logo-icon { width: 28px; height: 28px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #fff; flex-shrink: 0; }
+    .nav-header .logo-text { font-weight: 700; font-size: 14px; letter-spacing: -0.02em; }
+    .nav-header .logo-text small { display: block; font-weight: 400; font-size: 10px; color: rgba(255,255,255,0.45); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 1px; }
+    .nav-section-label { padding: 14px 14px 4px; font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.3); font-weight: 600; }
+    .nav-links { flex: 1; padding: 4px 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.12) transparent; }
+    .nav-link { display: flex; align-items: center; gap: 9px; padding: 7px 14px; color: rgba(255,255,255,0.6); text-decoration: none; font-size: 12.5px; cursor: pointer; border-left: 3px solid transparent; transition: background 0.12s, color 0.12s; }
+    .nav-link:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .nav-link.active { background: rgba(30,95,138,0.3); color: #fff; border-left-color: var(--accent); }
+    .nav-link svg { width: 15px; height: 15px; opacity: 0.7; flex-shrink: 0; }
+    .nav-footer { padding: 10px 14px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 10px; color: rgba(255,255,255,0.3); }
 
-    /* ── Left Navigation Rail ── */
-    .nav-rail {
-      width: var(--nav-width);
-      background: var(--ink);
-      color: #e8eaed;
-      flex-shrink: 0;
-      position: fixed;
-      top: 0; left: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      z-index: 100;
-      transition: width 0.2s;
-    }
+    /* ── MAIN ── */
+    .main { flex: 1; margin-left: var(--nav-width); min-height: 100vh; }
+    .top-bar { background: var(--card); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+    .top-bar .breadcrumb { font-size: 12px; color: var(--muted); }
+    .top-bar .breadcrumb strong { color: var(--ink); }
+    .content { padding: 20px 24px 40px; }
+    .page { display: none; } .page.active { display: block; }
+    .page-header { margin-bottom: 16px; }
+    .page-header h1 { font-size: 20px; font-weight: 700; margin-bottom: 3px; }
+    .page-header p { color: var(--muted); font-size: 12px; }
 
-    .nav-header {
-      padding: 16px 16px 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    /* ── KPI ── */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .kpi-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); position: relative; overflow: hidden; }
+    .kpi-card::before { content:''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--accent); }
+    .kpi-card.green::before { background: var(--success); } .kpi-card.yellow::before { background: var(--warning); } .kpi-card.red::before { background: var(--error); }
+    .kpi-card .kpi-label { display: block; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+    .kpi-card .kpi-value { font-size: 22px; font-weight: 700; }
 
-    .nav-header .logo-icon {
-      width: 28px; height: 28px;
-      background: var(--accent);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 13px; color: #fff; flex-shrink: 0;
-    }
+    /* ── CARD ── */
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); margin-bottom: 14px; }
+    .card h2 { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+    .card .desc { color: var(--muted); font-size: 11px; margin-bottom: 12px; }
 
-    .nav-header .logo-text {
-      font-weight: 700; font-size: 14px; letter-spacing: -0.02em;
-      white-space: nowrap;
-    }
+    /* ── TABLE ── */
+    .table-wrap { overflow: auto; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 500px; }
+    th, td { border-bottom: 1px solid var(--border); padding: 7px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--table-header); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); position: sticky; top: 0; white-space: nowrap; }
+    tbody tr:hover { background: #f7f8fa; }
+    td[contenteditable] { cursor: text; outline: none; min-width: 60px; }
+    td[contenteditable]:focus { background: #fffde7; box-shadow: inset 0 0 0 2px var(--accent); border-radius: 2px; }
+    th[contenteditable]:focus { background: #e8ecf0; box-shadow: inset 0 0 0 2px var(--accent); }
+    .action-col { width: 32px; text-align: center; padding: 4px; }
+    .btn-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; line-height: 1; padding: 2px 4px; border-radius: 4px; }
+    .btn-del:hover { background: var(--error-bg); color: var(--error); }
 
-    .nav-header .logo-text small {
-      display: block; font-weight: 400; font-size: 10px;
-      color: rgba(255,255,255,0.5); letter-spacing: 0.06em;
-      text-transform: uppercase; margin-top: 2px;
-    }
+    /* ── STATUS CELLS ── */
+    td.st-needed { background: var(--warning-bg); color: var(--warning); font-weight: 600; }
+    td.st-complete { background: var(--success-bg); color: var(--success); font-weight: 600; }
+    td.st-na { background: #eef0f2; color: var(--muted); }
+    td.st-pending { background: var(--error-bg); color: var(--error); font-weight: 600; }
 
-    .nav-section-label {
-      padding: 16px 16px 6px;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: rgba(255,255,255,0.35);
-      font-weight: 600;
-    }
+    /* ── HEATMAP ── */
+    .heatmap { display: grid; gap: 2px; font-size: 10px; }
+    .hm-cell { padding: 5px 6px; text-align: center; border-radius: 3px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hm-hdr { background: var(--table-header); color: var(--muted); font-size: 9px; text-transform: uppercase; }
+    .hm-green { background: #d1fae5; color: #065f46; }
+    .hm-yellow { background: #fef3c7; color: #92400e; }
+    .hm-red { background: #fecaca; color: #991b1b; }
+    .hm-gray { background: #f3f4f6; color: #9ca3af; }
 
-    .nav-links {
-      flex: 1;
-      padding: 4px 0;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255,255,255,0.15) transparent;
-    }
+    /* ── PROGRESS ── */
+    .prog-bar { background: #e5e7eb; border-radius: 99px; height: 7px; overflow: hidden; }
+    .prog-fill { height: 100%; border-radius: 99px; }
+    .prog-fill.green { background: var(--success); } .prog-fill.yellow { background: var(--warning); } .prog-fill.red { background: var(--error); } .prog-fill.blue { background: var(--accent); }
 
-    .nav-link {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 16px;
-      color: rgba(255,255,255,0.65);
-      text-decoration: none;
-      font-size: 13px;
-      transition: background 0.15s, color 0.15s;
-      border-left: 3px solid transparent;
-      cursor: pointer;
-    }
-
-    .nav-link:hover {
-      background: rgba(255,255,255,0.06);
-      color: #fff;
-    }
-
-    .nav-link.active {
-      background: rgba(30,95,138,0.3);
-      color: #fff;
-      border-left-color: var(--accent);
-    }
-
-    .nav-link svg {
-      width: 16px; height: 16px; opacity: 0.8; flex-shrink: 0;
-    }
-
-    .nav-link .badge {
-      margin-left: auto;
-      background: var(--error);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 10px;
-      min-width: 18px;
-      text-align: center;
-    }
-
-    .nav-footer {
-      padding: 12px 16px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-      font-size: 11px;
-      color: rgba(255,255,255,0.35);
-    }
-
-    /* ── Main Content ── */
-    .main {
-      flex: 1;
-      margin-left: var(--nav-width);
-      min-height: 100vh;
-    }
-
-    .top-bar {
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-    }
-
-    .top-bar .breadcrumb {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .top-bar .breadcrumb strong {
-      color: var(--ink);
-    }
-
-    .top-bar .user-area {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 13px;
-    }
-
-    .top-bar .user-avatar {
-      width: 30px; height: 30px;
-      border-radius: 50%;
-      background: var(--accent);
-      color: #fff;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 12px;
-    }
-
-    .content {
-      padding: 24px 28px 48px;
-    }
-
-    .page { display: none; }
-    .page.active { display: block; }
-
-    .page-header { margin-bottom: 20px; }
-    .page-header h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
-    .page-header p { color: var(--muted); font-size: 13px; }
-
-    /* ── KPI Cards ── */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .kpi-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .kpi-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 4px; height: 100%;
-      background: var(--accent);
-      border-radius: 2px 0 0 2px;
-    }
-
-    .kpi-card.green::before { background: var(--success); }
-    .kpi-card.yellow::before { background: var(--warning); }
-    .kpi-card.red::before { background: var(--error); }
-
-    .kpi-card span {
-      display: block;
-      color: var(--muted);
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 4px;
-    }
-
-    .kpi-card strong {
-      font-size: 22px;
-      font-weight: 700;
-      line-height: 1.1;
-    }
-
-    .kpi-card .kpi-sub {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 4px;
-    }
-
-    /* ── Cards ── */
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-      margin-bottom: 16px;
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 14px;
-    }
-
-    .card-header h2 { font-size: 15px; font-weight: 600; }
-    .card-header p { margin-top: 3px; color: var(--muted); font-size: 12px; }
-
-    /* ── Grid Layouts ── */
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-
-    @media (max-width: 1000px) {
-      .grid-2, .grid-3 { grid-template-columns: 1fr; }
-    }
-
-    /* ── Tables ── */
-    .table-wrapper {
-      overflow: auto;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-      min-width: 600px;
-    }
-
-    th, td {
-      border-bottom: 1px solid var(--border);
-      padding: 9px 12px;
-      text-align: left;
-      vertical-align: top;
-    }
-
-    th {
-      background: var(--table-header);
-      font-weight: 600;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--muted);
-      position: sticky;
-      top: 0;
-    }
-
-    tbody tr:hover { background: #fafbfc; }
-    tbody tr.clickable { cursor: pointer; }
-
-    /* ── Status Pills ── */
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px 10px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
-    .pill-needed, .pill-warning { background: var(--warning-bg); color: var(--warning); }
-    .pill-na { background: #eef0f2; color: var(--muted); }
-    .pill-complete, .pill-success { background: var(--success-bg); color: var(--success); }
-    .pill-pending, .pill-error { background: var(--error-bg); color: var(--error); }
-    .pill-info { background: var(--info-bg); color: var(--info); }
-
-    /* ── Compliance Heatmap ── */
-    .heatmap {
-      display: grid;
-      gap: 2px;
-      font-size: 11px;
-    }
-
-    .heatmap-cell {
-      padding: 6px 8px;
-      text-align: center;
-      border-radius: 4px;
-      font-weight: 600;
-      cursor: default;
-    }
-
-    .heatmap-cell.green { background: #d1fae5; color: #065f46; }
-    .heatmap-cell.yellow { background: #fef3c7; color: #92400e; }
-    .heatmap-cell.orange { background: #fed7aa; color: #9a3412; }
-    .heatmap-cell.red { background: #fecaca; color: #991b1b; }
-    .heatmap-cell.gray { background: #f3f4f6; color: #9ca3af; }
-    .heatmap-cell.header { background: var(--table-header); color: var(--muted); font-weight: 600; font-size: 10px; text-transform: uppercase; }
-
-    /* ── Progress Bars ── */
-    .progress-bar {
-      background: #e5e7eb;
-      border-radius: 999px;
-      height: 8px;
-      overflow: hidden;
-    }
-
-    .progress-bar .fill {
-      height: 100%;
-      border-radius: 999px;
-      transition: width 0.6s ease;
-    }
-
-    .progress-bar .fill.green { background: var(--success); }
-    .progress-bar .fill.yellow { background: var(--warning); }
-    .progress-bar .fill.red { background: var(--error); }
-    .progress-bar .fill.blue { background: var(--accent); }
-
-    /* ── Filters ── */
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 14px;
-    }
-
-    .filters select, .filters input {
-      padding: 7px 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 12px;
-      font-family: inherit;
-      min-width: 130px;
-      background: var(--card);
-    }
-
-    .filters input[type="search"] { min-width: 200px; }
-
-    /* ── Buttons ── */
-    .btn {
-      padding: 7px 16px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-family: inherit;
-      cursor: pointer;
-      border: 1px solid var(--border);
-      background: var(--card);
-      font-weight: 500;
-      transition: all 0.15s;
-    }
-
+    /* ── BUTTONS ── */
+    .btn { padding: 6px 14px; border-radius: 7px; font-size: 11px; font-family: inherit; cursor: pointer; border: 1px solid var(--border); background: var(--card); font-weight: 500; transition: all 0.12s; }
     .btn:hover { border-color: var(--accent); color: var(--accent); }
     .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
-    .btn-sm { padding: 4px 10px; font-size: 11px; }
+    .btn-primary:hover { background: var(--accent-hover); color: #fff; }
+    .btn-sm { padding: 4px 10px; font-size: 10px; }
+    .btn-danger { background: var(--error-bg); color: var(--error); border-color: #f5c6c6; }
+    .btn-danger:hover { background: var(--error); color: #fff; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }
+    .toolbar input[type="search"] { padding: 6px 10px; border: 1px solid var(--border); border-radius: 7px; font-size: 11px; font-family: inherit; min-width: 180px; }
 
-    /* ── Alerts ── */
-    .alert-bar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: 10px;
-      margin-bottom: 8px;
-      font-size: 13px;
-    }
-
+    /* ── ALERTS ── */
+    .alert-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; font-size: 12px; }
     .alert-bar.warn { background: var(--warning-bg); border: 1px solid #f0d88a; }
-    .alert-bar.error { background: var(--error-bg); border: 1px solid #f5c6c6; }
-    .alert-bar.success { background: var(--success-bg); border: 1px solid #a7d7b8; }
+    .alert-bar.err { background: var(--error-bg); border: 1px solid #f5c6c6; }
     .alert-bar.info { background: var(--info-bg); border: 1px solid #a7cfe0; }
+    .alert-bar.ok { background: var(--success-bg); border: 1px solid #a7d7b8; }
     .alert-bar a { color: var(--accent); text-decoration: none; font-weight: 600; }
-    .alert-bar a:hover { text-decoration: underline; }
 
-    /* ── Camp Status Cards ── */
-    .camp-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 12px;
-      margin-bottom: 16px;
-    }
+    /* ── GRID ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    @media (max-width: 960px) { .grid-2 { grid-template-columns: 1fr; } }
 
-    .camp-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px;
-      cursor: pointer;
-      transition: box-shadow 0.15s, border-color 0.15s;
-    }
+    /* ── EMPTY STATE ── */
+    .empty-state { padding: 32px; text-align: center; color: var(--muted); font-size: 13px; }
+    .empty-state p { margin-bottom: 12px; }
 
-    .camp-card:hover {
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      border-color: var(--accent);
-    }
+    /* ── TOAST ── */
+    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 10px; font-size: 13px; z-index: 300; opacity: 0; transform: translateY(10px); transition: all 0.2s; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateY(0); }
 
-    .camp-card .camp-name {
-      font-weight: 600;
-      font-size: 14px;
-      margin-bottom: 4px;
-    }
-
-    .camp-card .camp-location {
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
-
-    .camp-card .camp-status {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .camp-card .status-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-    }
-
-    .camp-card .status-dot.green { background: var(--success); }
-    .camp-card .status-dot.yellow { background: var(--warning); }
-    .camp-card .status-dot.red { background: var(--error); }
-
-    .camp-card .camp-meta {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 8px;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    /* ── Donut/Gauge placeholder ── */
-    .chart-placeholder {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 160px;
-      color: var(--muted);
-      font-size: 13px;
-      border: 2px dashed var(--border);
-      border-radius: 10px;
-    }
-
-    /* ── Phase Badge ── */
-    .phase-badge {
-      display: inline-flex;
-      padding: 3px 10px;
-      border-radius: 6px;
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .phase-1 { background: #dbeafe; color: #1d4ed8; }
-    .phase-2 { background: #fef3c7; color: #92400e; }
-    .phase-3 { background: #d1fae5; color: #065f46; }
-    .phase-4 { background: #ede9fe; color: #5b21b6; }
-
-    /* ── Module Overview Grid ── */
-    .module-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 12px;
-    }
-
-    .module-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
-      transition: box-shadow 0.15s;
-      cursor: pointer;
-    }
-
-    .module-card:hover {
-      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-    }
-
-    .module-card .module-icon {
-      width: 32px; height: 32px;
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
-
-    .module-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
-    .module-card p { font-size: 12px; color: var(--muted); line-height: 1.4; }
-
-    /* ── Scrollbar ── */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #c4c8d0; border-radius: 3px; }
-
-    /* ── Modal ── */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.45);
-      z-index: 200;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
+    /* ── MODAL ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: center; justify-content: center; padding: 24px; }
     .modal-overlay.visible { display: flex; }
+    .modal { background: var(--card); border-radius: 14px; max-width: 500px; width: 100%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+    .modal-hdr { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .modal-hdr h2 { font-size: 16px; }
+    .modal-close { background: none; border: none; cursor: pointer; font-size: 20px; color: var(--muted); }
+    .modal-body { padding: 20px; }
+    .modal-body label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--muted); }
+    .modal-body input, .modal-body select, .modal-body textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 7px; font-size: 13px; font-family: inherit; margin-bottom: 12px; }
+    .modal-body textarea { min-height: 60px; resize: vertical; }
 
-    .modal {
-      background: var(--card);
-      border-radius: 16px;
-      max-width: 680px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 24px 48px rgba(0,0,0,0.2);
-    }
-
-    .modal-header {
-      padding: 18px 24px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .modal-header h2 { font-size: 17px; }
-    .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--muted); }
-    .modal-body { padding: 20px 24px; }
-
-    .detail-row { display: flex; margin-bottom: 10px; font-size: 13px; }
-    .detail-label { width: 140px; flex-shrink: 0; color: var(--muted); }
-    .detail-value { flex: 1; }
-
-    /* ── Escalation Severity ── */
-    .severity-1 { color: #fff; background: #dc2626; }
-    .severity-2 { color: #fff; background: #ea580c; }
-    .severity-3 { color: #92400e; background: #fbbf24; }
-    .severity-4 { color: #065f46; background: #6ee7b7; }
-
-    /* ── Timeline ── */
-    .timeline { position: relative; padding-left: 20px; }
-    .timeline::before { content: ''; position: absolute; left: 7px; top: 0; bottom: 0; width: 2px; background: var(--border); }
-    .timeline-item { position: relative; padding-bottom: 16px; }
-    .timeline-item::before { content: ''; position: absolute; left: -17px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid var(--card); }
-    .timeline-item .timeline-date { font-size: 11px; color: var(--muted); }
-    .timeline-item .timeline-text { font-size: 13px; margin-top: 2px; }
-
-    .source-link { font-size: 11px; color: var(--muted); margin-top: 10px; }
+    .source-link { font-size: 10px; color: var(--muted); margin-top: 6px; }
     .source-link a { color: var(--accent); text-decoration: none; }
-    .source-link a:hover { text-decoration: underline; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #c4c8d0; border-radius: 3px; }
   </style>
 </head>
 <body>
-  <!-- ═══════════════ NAVIGATION ═══════════════ -->
-  <nav class="nav-rail">
-    <div class="nav-header">
-      <div class="logo-icon">J</div>
-      <div class="logo-text">JMC Platform<small>Internal Dashboards</small></div>
-    </div>
-    <div class="nav-links">
-      <div class="nav-section-label">Overview</div>
-      <a class="nav-link active" data-page="dashboard">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-        Executive Dashboard
-      </a>
-      <a class="nav-link" data-page="modules">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-        All Modules
-      </a>
 
-      <div class="nav-section-label">Phase 1 — Foundation</div>
-      <a class="nav-link" data-page="finance">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        Finance
-      </a>
-      <a class="nav-link" data-page="people">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-        People Management
-      </a>
-      <a class="nav-link" data-page="compliance">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-        Compliance
-      </a>
+  <nav class="nav-rail" id="navRail"></nav>
 
-      <div class="nav-section-label">Phase 2 — Operations</div>
-      <a class="nav-link" data-page="safety">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-        Safety & Security
-      </a>
-      <a class="nav-link" data-page="sites">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-        Sites
-      </a>
-      <a class="nav-link" data-page="insurance">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-        Insurance
-      </a>
-      <a class="nav-link" data-page="transportation">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h8m-8 4h8m-4-8v16m-4-4h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-        Transportation
-      </a>
-      <a class="nav-link" data-page="vendors">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-        Vendors & Contracts
-      </a>
-
-      <div class="nav-section-label">Phase 3 — Programs</div>
-      <a class="nav-link" data-page="healthcare">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-        Healthcare
-      </a>
-      <a class="nav-link" data-page="subsidy">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-        Subsidy Tracking
-      </a>
-      <a class="nav-link" data-page="marketing">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
-        Marketing
-      </a>
-      <a class="nav-link" data-page="evaluations">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        Evaluations
-      </a>
-
-      <div class="nav-section-label">Phase 4 — Enterprise</div>
-      <a class="nav-link" data-page="escalation">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-        Escalation Tracking
-        <span class="badge" id="escBadge" style="display:none">0</span>
-      </a>
-      <a class="nav-link" data-page="calendar">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        Annual Calendar
-      </a>
-      <a class="nav-link" data-page="content">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        Content Repository
-      </a>
-      <a class="nav-link" data-page="programs">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-        Programs
-      </a>
-      <a class="nav-link" data-page="settings">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
-        Settings & Admin
-      </a>
-    </div>
-    <div class="nav-footer">v1.0 · Feb 2026</div>
-  </nav>
-
-  <!-- ═══════════════ TOP BAR ═══════════════ -->
   <div class="main">
     <div class="top-bar">
-      <div class="breadcrumb">JMC Platform / <strong id="breadcrumbPage">Executive Dashboard</strong></div>
-      <div class="user-area">
-        <span style="color:var(--muted)">JMC Super Admin</span>
-        <div class="user-avatar">SA</div>
+      <div class="breadcrumb">JMC Platform / <strong id="breadcrumb">Executive Dashboard</strong></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="btn btn-sm" onclick="exportAllCSV()">Export All</button>
       </div>
     </div>
-
-    <div class="content">
-
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <!--                    EXECUTIVE DASHBOARD                          -->
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <section id="page-dashboard" class="page active">
-        <div class="page-header">
-          <h1>Executive Dashboard</h1>
-          <p>Organization-wide operational health across all JMC programs and camps.</p>
-        </div>
-
-        <!-- KPI Row -->
-        <div class="kpi-grid">
-          <div class="kpi-card green"><span>Active Camps</span><strong id="kpi-camps">12</strong><div class="kpi-sub">2026 Season</div></div>
-          <div class="kpi-card"><span>Overall Compliance</span><strong id="kpi-compliance">—</strong><div class="kpi-sub">Across all camps</div></div>
-          <div class="kpi-card yellow"><span>Open Escalations</span><strong id="kpi-escalations">3</strong><div class="kpi-sub">1 Severity 1</div></div>
-          <div class="kpi-card"><span>Budget Utilized</span><strong id="kpi-budget">62%</strong><div class="kpi-sub">$1.2M of $1.9M</div></div>
-          <div class="kpi-card green"><span>Enrollment</span><strong id="kpi-enrollment">78%</strong><div class="kpi-sub">1,247 / 1,600 target</div></div>
-          <div class="kpi-card"><span>Vendors Active</span><strong id="kpi-vendors">—</strong><div class="kpi-sub">W9 compliance tracked</div></div>
-        </div>
-
-        <!-- Alerts -->
-        <div id="dashAlerts">
-          <div class="alert-bar error">⚠️ <strong>Severity 1 Escalation:</strong> Active incident at Mosaic — assigned to Safety Lead. <a href="#escalation">View Details →</a></div>
-          <div class="alert-bar warn">⏰ <strong>Compliance:</strong> 14 staff across 4 camps have YPT expiring within 30 days. <a href="#compliance">View Compliance →</a></div>
-          <div class="alert-bar info">📋 <strong>Finance:</strong> Bank reconciliation pending for 3 camps (January). <a href="#finance">View Finance →</a></div>
-        </div>
-
-        <!-- Camp Status Cards -->
-        <div class="card">
-          <div class="card-header">
-            <div><h2>Camp Status Overview</h2><p>Click a camp for detailed view</p></div>
-          </div>
-          <div class="camp-grid" id="campGrid"></div>
-        </div>
-
-        <!-- Two-column: Compliance Heatmap + Financial Overview -->
-        <div class="grid-2">
-          <div class="card">
-            <div class="card-header"><div><h2>Compliance Heatmap</h2><p>Requirements by camp — % complete</p></div></div>
-            <div id="complianceHeatmap" style="overflow:auto"></div>
-          </div>
-          <div class="card">
-            <div class="card-header"><div><h2>Financial Overview</h2><p>Budget vs actual by camp</p></div></div>
-            <div id="financialOverview"></div>
-          </div>
-        </div>
-
-        <!-- Two-column: Enrollment + Incidents -->
-        <div class="grid-2">
-          <div class="card">
-            <div class="card-header"><div><h2>Enrollment Progress</h2><p>Applications → Enrolled by camp</p></div></div>
-            <div id="enrollmentTracker"></div>
-          </div>
-          <div class="card">
-            <div class="card-header"><div><h2>Incident Trends</h2><p>Last 6 months</p></div></div>
-            <div id="incidentTrends"></div>
-          </div>
-        </div>
-
-        <!-- Upcoming Deadlines -->
-        <div class="card">
-          <div class="card-header"><div><h2>Upcoming Deadlines</h2><p>Next 30 days across all modules</p></div></div>
-          <div class="table-wrapper">
-            <table>
-              <thead><tr><th>Date</th><th>Module</th><th>Camp</th><th>Item</th><th>Status</th></tr></thead>
-              <tbody id="deadlinesBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <!--                    ALL MODULES                                  -->
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <section id="page-modules" class="page">
-        <div class="page-header">
-          <h1>All Modules</h1>
-          <p>JMC Internal Dashboards Platform — 20 integrated modules across 4 implementation phases.</p>
-        </div>
-        <div class="module-grid" id="moduleGrid"></div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <!--                    FINANCE                                      -->
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <section id="page-finance" class="page">
-        <div class="page-header">
-          <h1>Finance</h1>
-          <p>Annual budget tracking, expenses, vendor payments, revenue status, and bank reconciliation.</p>
-        </div>
-        <div class="kpi-grid">
-          <div class="kpi-card"><span>Total Budget</span><strong>$1.9M</strong></div>
-          <div class="kpi-card"><span>Spent YTD</span><strong>$1.2M</strong></div>
-          <div class="kpi-card yellow"><span>Outstanding</span><strong>$48K</strong></div>
-          <div class="kpi-card green"><span>Vendor W9 Rate</span><strong>94%</strong></div>
-        </div>
-        <div class="grid-2">
-          <div class="card">
-            <div class="card-header"><div><h2>Budget vs Actual</h2><p>By camp</p></div></div>
-            <div id="budgetVsActual"></div>
-          </div>
-          <div class="card">
-            <div class="card-header"><div><h2>Outstanding Payments</h2><p>Aging buckets</p></div></div>
-            <div id="outstandingPayments"></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div><h2>Vendor Compliance</h2><p>W9 / 1099 / Contract status</p></div></div>
-          <div class="filters">
-            <input type="search" placeholder="Search vendors…" id="searchFinVendors" />
-            <select id="filterFinVendorStatus"><option value="">All Status</option><option value="Active">Active</option><option value="Inactive">Inactive</option></select>
-          </div>
-          <div class="table-wrapper" data-table="vendors"></div>
-          <div class="source-link">
-            <a href="Vendor Contracts - Mosaic.html" target="_blank">Mosaic Vendors</a> ·
-            <a href="Vendor Contracts - Residential.html" target="_blank">Residential Vendors</a> ·
-            <a href="Program Costs.html" target="_blank">Program Costs</a>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <!--                    PEOPLE MANAGEMENT                            -->
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <section id="page-people" class="page">
-        <div class="page-header">
-          <h1>People Management</h1>
-          <p>Participants, NPT applications, staff hiring, and alumni database.</p>
-        </div>
-        <div class="kpi-grid">
-          <div class="kpi-card green"><span>Participants</span><strong id="kpi-participants">—</strong></div>
-          <div class="kpi-card"><span>NPT Active</span><strong>86</strong></div>
-          <div class="kpi-card"><span>Staff Hired</span><strong>42</strong></div>
-          <div class="kpi-card"><span>Alumni</span><strong>2,340</strong></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div><h2>Enrollment Pipeline</h2><p>Application → Enrolled by camp</p></div></div>
-          <div id="enrollmentPipeline"></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div><h2>Participant Data</h2></div></div>
-          <div class="filters">
-            <select id="filterParticipantProgram"><option value="">All Programs</option></select>
-            <input type="search" placeholder="Search participants…" id="searchParticipants" />
-            <button class="btn btn-primary btn-sm" id="exportParticipants">Export CSV</button>
-          </div>
-          <div class="table-wrapper" data-table="participants"></div>
-          <div class="source-link">
-            <a href="Participant Data.html" target="_blank">Participant Data</a> ·
-            <a href="https://mt.ismailicamps.org/" target="_blank">iUSA / Mosaic Tools</a>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <!--                    COMPLIANCE                                   -->
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <section id="page-compliance" class="page">
-        <div class="page-header">
-          <h1>Compliance</h1>
-          <p>YPT, background checks, CPR, mandated reporter, fingerprinting, and policy tracking by camp, state, and role.</p>
-        </div>
-        <div class="kpi-grid">
-          <div class="kpi-card"><span>Overall Rate</span><strong id="kpi-comp-rate">—</strong></div>
-          <div class="kpi-card yellow"><span>Expiring (30d)</span><strong id="kpi-comp-expiring">14</strong></div>
-          <div class="kpi-card red"><span>Non-Compliant</span><strong id="kpi-comp-noncompliant">—</strong></div>
-          <div class="kpi-card green"><span>Camps Ready</span><strong>8 / 12</strong></div>
-        </div>
-
-        <!-- Heatmap -->
-        <div class="card">
-          <div class="card-header"><div><h2>Compliance Heatmap</h2><p>Camp × Requirement — color coded by % complete</p></div></div>
-          <div class="filters">
-            <select id="filterCompState"><option value="">All States</option><option value="GA">Georgia</option><option value="FL">Florida</option><option value="TX">Texas</option><option value="NJ">New Jersey</option></select>
-            <select id="filterCompRole"><option value="">All Roles</option><option value="Staff">Staff</option><option value="NPT">NPT</option><option value="Volunteer">Volunteer</option><option value="Faculty">Faculty</option></select>
-          </div>
-          <div id="compHeatmapFull" style="overflow:auto"></div>
-        </div>
-
-        <!-- Detailed Table -->
-        <div class="card">
-          <div class="card-header"><div><h2>Compliance Checklist</h2><p>Individual status by camp</p></div></div>
-          <div class="filters">
-            <input type="search" placeholder="Search camps or staff…" id="searchCompliance" />
-            <select id="filterComplianceStatus"><option value="">All Status</option><option value="Needed">Needed</option><option value="N/A">N/A</option><option value="Complete">Complete</option></select>
-          </div>
-          <div class="table-wrapper" data-table="compliance"></div>
-          <div class="source-link"><a href="Compliance Checklist.html" target="_blank">Open source file</a> · <a href="Compliance Calendar.html" target="_blank">Compliance Calendar</a></div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <!--                    SAFETY & SECURITY                            -->
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <section id="page-safety" class="page">
-        <div class="page-header">
-          <h1>Safety & Security</h1>
-          <p>Site inspections, incident reporting, risk management, and security training tracking.</p>
-        </div>
-        <div class="kpi-grid">
-          <div class="kpi-card"><span>Inspections Done</span><strong>8 / 12</strong></div>
-          <div class="kpi-card red"><span>Open Incidents</span><strong>3</strong></div>
-          <div class="kpi-card yellow"><span>Pending Remediations</span><strong>5</strong></div>
-          <div class="kpi-card green"><span>Training Complete</span><strong>92%</strong></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div><h2>Incident Log</h2><p>Reported incidents with severity and status</p></div></div>
-          <div class="table-wrapper">
-            <table>
-              <thead><tr><th>ID</th><th>Date</th><th>Camp</th><th>Type</th><th>Severity</th><th>Status</th><th>Assigned To</th></tr></thead>
-              <tbody id="incidentLog"></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div><h2>Site Inspection Status</h2></div></div>
-          <div class="table-wrapper">
-            <table>
-              <thead><tr><th>Site</th><th>Camp</th><th>Last Inspection</th><th>Fire Safety</th><th>Structural</th><th>Water Safety</th><th>ADA</th><th>Overall</th></tr></thead>
-              <tbody id="inspectionTable"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <!--                    SITES                                        -->
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <section id="page-sites" class="page">
-        <div class="page-header">
-          <h1>Sites</h1>
-          <p>Camp site contracts, COI tracking, and facility relationship management.</p>
-        </div>
-        <div class="kpi-grid">
-          <div class="kpi-card green"><span>Active Sites</span><strong>12</strong></div>
-          <div class="kpi-card"><span>Contracts Signed</span><strong>10</strong></div>
-          <div class="kpi-card yellow"><span>COI Pending</span><strong>3</strong></div>
-          <div class="kpi-card"><span>Renewals Due (90d)</span><strong>2</strong></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div><h2>Site Registry</h2></div></div>
-          <div class="table-wrapper">
-            <table>
-              <thead><tr><th>Site Name</th><th>Location</th><th>Camp(s)</th><th>Contract Status</th><th>COI Status</th><th>Expiration</th><th>Contact</th></tr></thead>
-              <tbody id="sitesTable"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <!--                    INSURANCE                                    -->
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <section id="page-insurance" class="page">
-        <div class="page-header">
-          <h1>Insurance</h1>
-          <p>Policy registry, COI tracking per site, and high-risk activity coverage.</p>
-        </div>
-        <div class="card">
-          <div class="card-header"><div><h2>Policy Registry</h2></div></div>
-          <div class="filters">
-            <input type="search" placeholder="Search policies…" id="searchInsurance" />
-          </div>
-          <div class="table-wrapper" data-table="insurance"></div>
-          <div class="source-link"><a href="Insurance.html" target="_blank">Open source file</a></div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <!--                    TRANSPORTATION                               -->
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <section id="page-transportation" class="page">
-        <div class="page-header">
-          <h1>Transportation</h1>
-          <p>Bus contracts, flights, car rentals, and volunteer driver waiver tracking.</p>
-        </div>
-        <div class="kpi-grid">
-          <div class="kpi-card"><span>Bus Contracts</span><strong>8</strong></div>
-          <div class="kpi-card"><span>Flights Booked</span><strong>24</strong></div>
-          <div class="kpi-card"><span>Car Rentals</span><strong>12</strong></div>
-          <div class="kpi-card yellow"><span>Driver Waivers Pending</span><strong>6</strong></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div><h2>Bus Contracts</h2></div></div>
-          <div class="table-wrapper">
-            <table>
-              <thead><tr><th>Company</th><th>Camp</th><th>Route</th><th>Service Dates</th><th>Buses</th><th>Contract Value</th><th>Status</th></tr></thead>
-              <tbody id="busTable"></tbody>
-            </table>
-          </div>
-          <div class="source-link"><a href="Bus Contracts.html" target="_blank">Open source file</a></div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <!--                    VENDORS & CONTRACTS                          -->
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <section id="page-vendors" class="page">
-        <div class="page-header">
-          <h1>Vendors & Contracts</h1>
-          <p>Vendor database with W9, 1099, contract status, and contact management.</p>
-        </div>
-        <div class="card">
-          <div class="card-header"><div><h2>Vendor Registry</h2></div></div>
-          <div class="filters">
-            <select id="filterVendorProgram"><option value="">All Programs</option></select>
-            <select id="filterVendorRegion"><option value="">All Regions</option></select>
-            <input type="search" placeholder="Search vendors…" id="searchVendors" />
-          </div>
-          <div class="table-wrapper" data-table="vendorsFull"></div>
-          <div class="source-link">
-            <a href="Vendor Contracts - Mosaic.html" target="_blank">Mosaic</a> ·
-            <a href="Vendor Contracts - Residential.html" target="_blank">Residential</a> ·
-            <a href="Vendor Reference 2025.html" target="_blank">Vendor Reference 2025</a>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <!--                    HEALTHCARE                                   -->
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <section id="page-healthcare" class="page">
-        <div class="page-header">
-          <h1>Healthcare Management</h1>
-          <p>HCP tracking, health form review, inventory management, and pre-camp training.</p>
-        </div>
-        <div class="kpi-grid">
-          <div class="kpi-card green"><span>HCPs Assigned</span><strong>12</strong></div>
-          <div class="kpi-card"><span>Health Forms Reviewed</span><strong>89%</strong></div>
-          <div class="kpi-card yellow"><span>Flagged Forms</span><strong>7</strong></div>
-          <div class="kpi-card"><span>Inventory Items</span><strong>156</strong></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div><h2>Health Form Review Status</h2><p>By camp</p></div></div>
-          <div id="healthFormStatus"></div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <!--                    SUBSIDY                                      -->
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <section id="page-subsidy" class="page">
-        <div class="page-header">
-          <h1>Subsidy Tracking</h1>
-          <p>Master subsidy tracker — applications, approvals, camp fees vs travel.</p>
-        </div>
-        <div class="kpi-grid">
-          <div class="kpi-card"><span>Applications</span><strong>234</strong></div>
-          <div class="kpi-card green"><span>Approved</span><strong>189</strong></div>
-          <div class="kpi-card yellow"><span>Pending</span><strong>28</strong></div>
-          <div class="kpi-card red"><span>Rejected</span><strong>17</strong></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div><h2>Subsidy Allocation by Camp</h2></div></div>
-          <div id="subsidyAllocation"></div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <!--                    MARKETING                                    -->
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <section id="page-marketing" class="page">
-        <div class="page-header">
-          <h1>Marketing</h1>
-          <p>Campaign checklist tracker, launch calendar, and status board.</p>
-        </div>
-        <div class="card">
-          <div class="card-header"><div><h2>Campaign Status Board</h2></div></div>
-          <div id="campaignBoard"></div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <!--                    EVALUATIONS                                  -->
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <section id="page-evaluations" class="page">
-        <div class="page-header">
-          <h1>Evaluations</h1>
-          <p>Participant, staff, facilitator, and parent surveys — pre-camp, post-camp, and 100-day follow-up.</p>
-        </div>
-        <div class="kpi-grid">
-          <div class="kpi-card"><span>Surveys Distributed</span><strong>1,820</strong></div>
-          <div class="kpi-card green"><span>Response Rate</span><strong>72%</strong></div>
-          <div class="kpi-card"><span>Avg Satisfaction</span><strong>4.3 / 5</strong></div>
-          <div class="kpi-card"><span>NPS Score</span><strong>+62</strong></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div><h2>Evaluation Results by Camp</h2></div></div>
-          <div id="evalResults"></div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <!--                    ESCALATION TRACKING                          -->
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <section id="page-escalation" class="page">
-        <div class="page-header">
-          <h1>Escalation Tracking</h1>
-          <p>Intake, classification, assignment, resolution, and audit trail for all escalated issues.</p>
-        </div>
-        <div class="kpi-grid">
-          <div class="kpi-card red"><span>Severity 1</span><strong>1</strong></div>
-          <div class="kpi-card yellow"><span>Severity 2</span><strong>2</strong></div>
-          <div class="kpi-card"><span>Severity 3</span><strong>4</strong></div>
-          <div class="kpi-card green"><span>Resolved (30d)</span><strong>12</strong></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div><h2>Active Escalations</h2></div></div>
-          <div class="table-wrapper">
-            <table>
-              <thead><tr><th>ID</th><th>Date</th><th>Camp</th><th>Category</th><th>Severity</th><th>Assigned To</th><th>Status</th><th>Days Open</th></tr></thead>
-              <tbody id="escalationTable"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <!--                    ANNUAL CALENDAR                              -->
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <section id="page-calendar" class="page">
-        <div class="page-header">
-          <h1>Annual Calendar</h1>
-          <p>Camp dates, training dates, meetings, and key deadlines.</p>
-        </div>
-        <div class="card">
-          <div class="card-header"><div><h2>2026 Calendar</h2></div></div>
-          <div class="filters">
-            <select id="filterCalProgram"><option value="">All Programs</option></select>
-            <select id="filterCalType"><option value="">All Types</option><option value="Camp">Camp Session</option><option value="Training">Training</option><option value="Meeting">Meeting</option></select>
-            <input type="search" placeholder="Search events…" id="searchCal" />
-          </div>
-          <div class="table-wrapper" data-table="calendar"></div>
-          <div class="source-link">
-            <a href="Annual Calendar.html" target="_blank">Annual Calendar</a> ·
-            <a href="Master Trainings.html" target="_blank">Master Trainings</a> ·
-            <a href="Schedule Tracker.html" target="_blank">Schedule Tracker</a> ·
-            <a href="Quick Dates.html" target="_blank">Quick Dates</a>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <!--                    CONTENT REPOSITORY                           -->
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <section id="page-content" class="page">
-        <div class="page-header">
-          <h1>Content Repository</h1>
-          <p>Program content lifecycle — Vision → Outline → Draft → Review → Final.</p>
-        </div>
-        <div class="card">
-          <div class="card-header"><div><h2>Content Pipeline</h2></div></div>
-          <div id="contentPipeline"></div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <!--                    PROGRAMS                                     -->
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <section id="page-programs" class="page">
-        <div class="page-header">
-          <h1>Programs</h1>
-          <p>Master list of all JMC programs with dates, sites, and contract status.</p>
-        </div>
-        <div class="card">
-          <div class="filters">
-            <select id="filterProgramType"><option value="">All Programs</option></select>
-            <select id="filterCity"><option value="">All Cities</option></select>
-            <select id="filterContract"><option value="">All Contract Status</option></select>
-            <input type="search" placeholder="Search programs…" id="searchPrograms" />
-          </div>
-          <div class="table-wrapper" data-table="programs"></div>
-          <div class="source-link"><a href="Master Programs.html" target="_blank">Open source file</a></div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <!--                    SETTINGS                                     -->
-      <!-- ═══════════════════════════════════════════════════════════════ -->
-      <section id="page-settings" class="page">
-        <div class="page-header">
-          <h1>Settings & Admin</h1>
-          <p>Platform configuration, user roles, data management, and audit logs.</p>
-        </div>
-        <div class="grid-3">
-          <div class="card" style="cursor:default">
-            <h3 style="font-size:14px;margin-bottom:6px">User Roles & Access</h3>
-            <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Manage role-based access control for Super Admin, JMC Admin, and Camp Teams.</p>
-            <div class="table-wrapper">
-              <table>
-                <thead><tr><th>Role</th><th>Users</th><th>Access Level</th></tr></thead>
-                <tbody>
-                  <tr><td>JMC Super Admin</td><td>2</td><td><span class="pill pill-error">Full Access</span></td></tr>
-                  <tr><td>JMC Admin</td><td>5</td><td><span class="pill pill-warning">Cross-Camp</span></td></tr>
-                  <tr><td>Camp Team — Olympia</td><td>4</td><td><span class="pill pill-info">Camp Scoped</span></td></tr>
-                  <tr><td>Camp Team — Mosaic</td><td>6</td><td><span class="pill pill-info">Camp Scoped</span></td></tr>
-                  <tr><td>Camp Team — Al Ummah</td><td>3</td><td><span class="pill pill-info">Camp Scoped</span></td></tr>
-                  <tr><td>Camp Team — Al Ilm</td><td>3</td><td><span class="pill pill-info">Camp Scoped</span></td></tr>
-                  <tr><td>Camp Team — Changemakers</td><td>4</td><td><span class="pill pill-info">Camp Scoped</span></td></tr>
-                  <tr><td>Camp Team — CPOI</td><td>2</td><td><span class="pill pill-info">Camp Scoped</span></td></tr>
-                  <tr><td>Camp Team — Roots</td><td>3</td><td><span class="pill pill-info">Camp Scoped</span></td></tr>
-                  <tr><td>Camp Team — Embark</td><td>3</td><td><span class="pill pill-info">Camp Scoped</span></td></tr>
-                  <tr><td>Camp Team — Khidma</td><td>2</td><td><span class="pill pill-info">Camp Scoped</span></td></tr>
-                  <tr><td>Camp Team — Retreat</td><td>2</td><td><span class="pill pill-info">Camp Scoped</span></td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="card" style="cursor:default">
-            <h3 style="font-size:14px;margin-bottom:6px">Data Management</h3>
-            <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Import/export, backup schedule, and data integrity checks.</p>
-            <button class="btn btn-sm" style="margin-bottom:8px">Import from Spreadsheets</button><br>
-            <button class="btn btn-sm" style="margin-bottom:8px">Export All Data (CSV)</button><br>
-            <button class="btn btn-sm">Run Data Integrity Check</button>
-          </div>
-          <div class="card" style="cursor:default">
-            <h3 style="font-size:14px;margin-bottom:6px">Platform Info</h3>
-            <p style="font-size:12px;color:var(--muted);line-height:1.6">
-              Version: 1.0<br>
-              Architecture: Next.js + PostgreSQL (planned)<br>
-              Current: Static HTML Dashboard<br>
-              Audit Logging: Planned (Phase 1)<br>
-              MFA: Planned (Phase 1)<br>
-              iUSA Integration: Planned (Phase 1)
-            </p>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div><h2>Implementation Roadmap</h2></div></div>
-          <div class="timeline" id="roadmapTimeline"></div>
-        </div>
-      </section>
-
-    </div>
+    <div class="content" id="appContent"></div>
   </div>
 
-  <!-- ═══════════════ MODAL ═══════════════ -->
-  <div class="modal-overlay" id="detailModal">
+  <div class="toast" id="toast"></div>
+
+  <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
-      <div class="modal-header">
-        <h2 id="modalTitle">Detail</h2>
-        <button class="modal-close" id="modalClose">&times;</button>
-      </div>
+      <div class="modal-hdr"><h2 id="modalTitle">Add Row</h2><button class="modal-close" onclick="closeModal()">&times;</button></div>
       <div class="modal-body" id="modalBody"></div>
     </div>
   </div>
 
-  <!-- ═══════════════ JAVASCRIPT ═══════════════ -->
-  <script>
-    // ────────────────────────────────────────────────────────────────────────
-    // DATA CONFIGURATION
-    // ────────────────────────────────────────────────────────────────────────
-    const DATA_SOURCES = {
-      programs:    { file: "Master Programs.html" },
-      trainings:   { file: "Master Trainings.html" },
-      compliance:  { file: "Compliance Checklist.html" },
-      vendors:     { file: ["Vendor Contracts - Mosaic.html", "Vendor Contracts - Residential.html"] },
-      vendorsFull: { file: ["Vendor Contracts - Mosaic.html", "Vendor Contracts - Residential.html"] },
-      insurance:   { file: "Insurance.html" },
-      costs:       { file: "Program Costs.html" },
-      calendar:    { file: "Annual Calendar.html" },
-      participants:{ file: "Participant Data.html" }
-    };
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// MODULE CONFIGURATION
+// ═══════════════════════════════════════════════════════════════════════════
+const MODULES = [
+  // ── Overview
+  { id:"dashboard", title:"Executive Dashboard", desc:"Auto-computed overview from all modules", section:"Overview",
+    icon:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>' },
+  // ── Core Data
+  { id:"programs", title:"Programs", desc:"Master list of all JMC programs", section:"Core Data",
+    source:"Master Programs.html", statusCols:[6,7],
+    icon:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>' },
+  { id:"compliance", title:"Compliance", desc:"YPT, background checks, CPR, waivers, fingerprinting", section:"Core Data",
+    source:"Compliance Checklist.html", statusCols:[3,4,5,6,7,8,9],
+    icon:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>' },
+  { id:"finance", title:"Finance / Costs", desc:"Program costs, budgets, and expense tracking", section:"Core Data",
+    source:"Program Costs.html",
+    icon:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>' },
+  { id:"vendors", title:"Vendors & Contracts", desc:"Vendor database, contracts, W9, background checks", section:"Core Data",
+    source:["Vendor Contracts - Mosaic.html","Vendor Contracts - Residential.html"],
+    icon:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>' },
+  { id:"insurance", title:"Insurance", desc:"Policy registry, billing, COI tracking", section:"Core Data",
+    source:"Insurance.html",
+    icon:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>' },
+  { id:"participants", title:"Participants", desc:"Applicants, accepted, attended by program and cohort", section:"Core Data",
+    source:"Participant Data.html",
+    icon:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>' },
+  { id:"trainings", title:"Trainings", desc:"Staff trainings, summits, certifications", section:"Core Data",
+    source:"Master Trainings.html",
+    icon:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>' },
+  { id:"calendar", title:"Annual Calendar", desc:"Camp dates, training sessions, meetings, deadlines", section:"Core Data",
+    source:"Annual Calendar.html",
+    icon:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>' },
+  // ── Operations (user-managed)
+  { id:"transportation", title:"Transportation", desc:"Bus contracts, flights, car rentals, driver waivers", section:"Operations",
+    source:"Bus Contracts.html",
+    icon:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h8m-8 4h8m-4-8v16m-4-4h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v8a2 2 0 002 2z"/>' },
+  { id:"safety", title:"Safety & Security", desc:"Incidents, inspections, risk management", section:"Operations",
+    defaultHeaders:["ID","Date","Camp","Type","Severity","Status","Assigned To","Resolution","Notes"],
+    icon:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>' },
+  { id:"sites", title:"Sites", desc:"Camp site contracts, COI, facility contacts", section:"Operations",
+    defaultHeaders:["Site Name","Location","Camp(s)","Contract Status","COI Status","Expiration","Contact","Notes"],
+    icon:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>' },
+  { id:"escalations", title:"Escalation Tracking", desc:"Intake, severity classification, assignment, resolution", section:"Operations",
+    defaultHeaders:["ID","Date","Camp","Category","Severity","Assigned To","Status","Days Open","Notes"],
+    icon:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>' },
+  { id:"healthcare", title:"Healthcare", desc:"HCP tracking, health forms, inventory", section:"Operations",
+    defaultHeaders:["Camp","HCP Name","License #","License Verified","Health Forms Reviewed","Flagged Forms","Status","Notes"],
+    icon:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>' },
+  { id:"subsidy", title:"Subsidy Tracking", desc:"Applications, approvals, camp fee vs travel subsidies", section:"Operations",
+    defaultHeaders:["Applicant","Camp","Amount Requested","Amount Approved","Type","Status","Notes"],
+    icon:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>' },
+  { id:"marketing", title:"Marketing", desc:"Campaign tracker, launch calendar, status board", section:"Operations",
+    defaultHeaders:["Campaign","Camp","Type","Start Date","End Date","Status","Notes"],
+    icon:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>' },
+  { id:"evaluations", title:"Evaluations", desc:"Participant, staff, facilitator, and parent surveys", section:"Operations",
+    defaultHeaders:["Camp","Survey Type","Distributed","Responses","Response Rate","Avg Score","Notes"],
+    icon:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>' },
+  { id:"content", title:"Content Repository", desc:"Program content lifecycle tracking", section:"Operations",
+    defaultHeaders:["Title","Camp/Program","Type","Author","Stage","Due Date","Notes"],
+    icon:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>' },
+  // ── Admin
+  { id:"settings", title:"Settings & Admin", desc:"Import/export, data management, platform info", section:"Admin",
+    icon:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/>' },
+];
 
-    const CAMPS = [
-      { name: "Olympia",      location: "Georgia",  state: "GA", status: "green", enrolled: 142, target: 180, compliance: 94 },
-      { name: "Mosaic",       location: "Florida",  state: "FL", status: "yellow", enrolled: 198, target: 220, compliance: 82 },
-      { name: "Al Ummah",     location: "Texas",    state: "TX", status: "green", enrolled: 95, target: 120, compliance: 91 },
-      { name: "Al Ilm",       location: "Dallas",   state: "TX", status: "yellow", enrolled: 76, target: 100, compliance: 78 },
-      { name: "CPOI",         location: "Various",  state: "NJ", status: "green", enrolled: 45, target: 60, compliance: 96 },
-      { name: "Roots",        location: "Atlanta",  state: "GA", status: "green", enrolled: 88, target: 100, compliance: 90 },
-      { name: "Embark",       location: "Various",  state: "TX", status: "yellow", enrolled: 64, target: 80, compliance: 85 },
-      { name: "Changemakers", location: "Atlanta",  state: "GA", status: "green", enrolled: 110, target: 140, compliance: 88 },
-      { name: "Khidma",       location: "Texas",    state: "TX", status: "green", enrolled: 55, target: 70, compliance: 92 },
-      { name: "Retreat",      location: "Georgia",  state: "GA", status: "green", enrolled: 120, target: 130, compliance: 97 },
-      { name: "Vibe",         location: "Texas",    state: "TX", status: "yellow", enrolled: 130, target: 160, compliance: 80 },
-      { name: "National Meeting", location: "TBD",  state: "",   status: "green", enrolled: 124, target: 140, compliance: 95 }
-    ];
+function getModule(id) { return MODULES.find(m => m.id === id); }
 
-    const COMPLIANCE_REQS = ["YPT", "BG Check", "CPR", "Active Shooter", "Safeguard", "Mandated Rep.*", "Fingerprint*", "Driving Waiver"];
+// ═══════════════════════════════════════════════════════════════════════════
+// DATA LAYER (localStorage)
+// ═══════════════════════════════════════════════════════════════════════════
+const STORE_KEY = 'jmc_platform_v2';
 
-    const MODULES = [
-      { id: "qol",        name: "Quality of Life",       icon: "🌟", phase: 4, desc: "Track measurable QOL indicators across camps" },
-      { id: "safety",     name: "Safety & Security",     icon: "🛡️", phase: 2, desc: "Site inspections, incidents, risk escalation" },
-      { id: "finance",    name: "Finance",               icon: "💰", phase: 1, desc: "Budget tracking, expenses, vendor payments, revenue" },
-      { id: "people",     name: "People Management",     icon: "👥", phase: 1, desc: "Participants, NPT, staff, alumni database" },
-      { id: "compliance", name: "Compliance",            icon: "✅", phase: 1, desc: "YPT, background checks, CPR, state requirements" },
-      { id: "sites",      name: "Sites",                 icon: "🏢", phase: 2, desc: "Contracts, COI tracking, contacts" },
-      { id: "marketing",  name: "Marketing",             icon: "📢", phase: 3, desc: "Campaign tracker, launch calendar" },
-      { id: "evaluations",name: "Evaluations",           icon: "📊", phase: 3, desc: "Surveys: participant, staff, parent" },
-      { id: "insurance",  name: "Insurance",             icon: "🔒", phase: 2, desc: "Policy registry, COI, high-risk activities" },
-      { id: "transportation", name: "Transportation",    icon: "🚌", phase: 2, desc: "Bus contracts, flights, car rentals, driver waivers" },
-      { id: "subsidy",    name: "Subsidy Tracking",      icon: "💳", phase: 3, desc: "Applications, approvals, camp fees vs travel" },
-      { id: "healthcare", name: "Healthcare",            icon: "❤️", phase: 3, desc: "HCP tracking, health forms, inventory" },
-      { id: "corporate",  name: "Corporate Accounts",    icon: "🏦", phase: 4, desc: "Discount codes, subscriptions, storage" },
-      { id: "faculty",    name: "ITREB Faculty",         icon: "🎓", phase: 4, desc: "Educator tracking, onboarding, scheduling" },
-      { id: "calendar",   name: "Annual Calendar",       icon: "📅", phase: 4, desc: "Camp dates, trainings, meetings" },
-      { id: "ajpf",       name: "AJPF Donations",        icon: "🎁", phase: 4, desc: "Donation tracking and acknowledgments" },
-      { id: "swag",       name: "Swag / Vendor Mgmt",    icon: "👕", phase: 4, desc: "Inventory, distribution, vendor contracts" },
-      { id: "trainings",  name: "Trainings & Meetings",  icon: "📋", phase: 4, desc: "Location, cost, attendance tracking" },
-      { id: "content",    name: "Content Repository",    icon: "📝", phase: 4, desc: "Vision → Outline → Draft → Review → Final" },
-      { id: "escalation", name: "Escalation Tracking",   icon: "⚠️", phase: 4, desc: "Intake, severity, assignment, audit trail" }
-    ];
+function getStore() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch { return {}; }
+}
+function setStore(data) { localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
+function getData(moduleId) { return getStore()[moduleId] || null; }
+function setData(moduleId, data) { const s = getStore(); s[moduleId] = data; s._lastModified = new Date().toISOString(); setStore(s); }
+function clearData(moduleId) { const s = getStore(); delete s[moduleId]; setStore(s); }
+function isInitialized() { return !!getStore()._initialized; }
+function markInitialized() { const s = getStore(); s._initialized = true; setStore(s); }
 
-    const DEADLINES = [
-      { date: "Feb 15", module: "Finance", camp: "All", item: "January bank reconciliation due", status: "Pending" },
-      { date: "Feb 20", module: "Compliance", camp: "Mosaic", item: "4 staff YPT expiring", status: "Urgent" },
-      { date: "Feb 25", module: "Sites", camp: "Olympia", item: "Site contract renewal deadline", status: "In Progress" },
-      { date: "Mar 01", module: "Insurance", camp: "All", item: "Annual policy renewal", status: "Upcoming" },
-      { date: "Mar 05", module: "People", camp: "Changemakers", item: "NPT application review deadline", status: "Upcoming" },
-      { date: "Mar 10", module: "Transportation", camp: "Mosaic", item: "Bus contract signing", status: "Upcoming" },
-      { date: "Mar 12", module: "Healthcare", camp: "All", item: "HCP assignment confirmation", status: "Upcoming" },
-      { date: "Mar 15", module: "Compliance", camp: "Al Ilm", item: "3 staff CPR expiring", status: "Warning" },
-    ];
+// ═══════════════════════════════════════════════════════════════════════════
+// HTML PARSING (import from source files)
+// ═══════════════════════════════════════════════════════════════════════════
+function cleanText(t) { return (t || '').replace(/\s+/g, ' ').trim(); }
 
-    const ESCALATIONS = [
-      { id: "ESC-001", date: "Feb 11", camp: "Mosaic", cat: "Safety", sev: 1, assignee: "S. Khan", status: "In Progress", days: 2 },
-      { id: "ESC-002", date: "Feb 09", camp: "Al Ilm", cat: "Behavioral", sev: 2, assignee: "A. Patel", status: "Assigned", days: 4 },
-      { id: "ESC-003", date: "Feb 08", camp: "Embark", cat: "Compliance", sev: 2, assignee: "M. Ali", status: "Under Investigation", days: 5 },
-      { id: "ESC-004", date: "Feb 05", camp: "Olympia", cat: "Operational", sev: 3, assignee: "R. Ahmed", status: "Pending Review", days: 8 },
-      { id: "ESC-005", date: "Feb 03", camp: "Changemakers", cat: "Medical", sev: 3, assignee: "D. Hassan", status: "In Progress", days: 10 },
-      { id: "ESC-006", date: "Feb 01", camp: "Vibe", cat: "Financial", sev: 4, assignee: "N. Merchant", status: "In Progress", days: 12 },
-      { id: "ESC-007", date: "Jan 28", camp: "Roots", cat: "Operational", sev: 3, assignee: "T. Ismail", status: "Resolved", days: 0 },
-    ];
+async function parseSourceFile(file) {
+  try {
+    const res = await fetch(file);
+    if (!res.ok) return null;
+    const html = await res.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const table = doc.querySelector('table.waffle');
+    if (!table) return null;
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+    if (!rows.length) return null;
+    const headers = Array.from(rows[0].querySelectorAll('td, th')).map(c => cleanText(c.textContent));
+    const body = rows.slice(1).map(r => Array.from(r.querySelectorAll('td')).map(c => cleanText(c.textContent)));
+    return { headers, rows: body.filter(r => r.some(c => c)) };
+  } catch { return null; }
+}
 
-    const INCIDENTS = [
-      { id: "INC-041", date: "Feb 11", camp: "Mosaic", type: "Security Breach", sev: 1, status: "Under Investigation", assignee: "S. Khan" },
-      { id: "INC-040", date: "Feb 09", camp: "Al Ilm", type: "Behavioral", sev: 2, status: "Assigned", assignee: "A. Patel" },
-      { id: "INC-039", date: "Feb 06", camp: "Embark", type: "Near-Miss", sev: 3, status: "Resolved", assignee: "M. Ali" },
-      { id: "INC-038", date: "Feb 03", camp: "Olympia", type: "Injury", sev: 2, status: "Resolved", assignee: "R. Ahmed" },
-      { id: "INC-037", date: "Jan 29", camp: "Roots", type: "Medical", sev: 3, status: "Closed", assignee: "D. Hassan" },
-    ];
+async function importModule(moduleId) {
+  const mod = getModule(moduleId);
+  if (!mod || !mod.source) return null;
+  const files = Array.isArray(mod.source) ? mod.source : [mod.source];
+  const tables = [];
+  for (const f of files) {
+    const t = await parseSourceFile(f);
+    if (t && t.rows.length) tables.push(t);
+  }
+  if (!tables.length) return null;
+  const merged = tables.length === 1 ? tables[0] : {
+    headers: tables[0].headers,
+    rows: tables.flatMap(t => t.rows)
+  };
+  setData(moduleId, merged);
+  return merged;
+}
 
-    const SITES_DATA = [
-      { name: "Pine Crest Camp", loc: "Georgia", camps: "Olympia, Retreat", contract: "Signed", coi: "Verified", exp: "Dec 2026", contact: "J. Williams" },
-      { name: "Lakewood Retreat", loc: "Florida", camps: "Mosaic", contract: "Signed", coi: "Expiring Soon", exp: "Mar 2026", contact: "M. Rodriguez" },
-      { name: "Heritage Center", loc: "Dallas, TX", camps: "Al Ilm", contract: "Under Negotiation", coi: "Requested", exp: "—", contact: "K. Abbasi" },
-      { name: "Summit Lodge", loc: "Atlanta, GA", camps: "Changemakers, Roots", contract: "Signed", coi: "Verified", exp: "Nov 2026", contact: "A. Johnson" },
-      { name: "Valley Grounds", loc: "Austin, TX", camps: "Vibe", contract: "Signed", coi: "Verified", exp: "Oct 2026", contact: "L. Martinez" },
-      { name: "Community Center", loc: "New Jersey", camps: "CPOI", contract: "Signed", coi: "Pending", exp: "Aug 2026", contact: "S. Rahim" },
-    ];
-
-    const ROADMAP = [
-      { date: "Mar 2026", text: "Phase 1 Kickoff: Finance, People, Compliance — Database schema, RBAC system, CI/CD setup" },
-      { date: "Apr 2026", text: "Finance dashboards live — Budget vs actual, vendor compliance" },
-      { date: "May 2026", text: "People module + iUSA integration — Participant sync, enrollment pipeline" },
-      { date: "Jun 2026", text: "Compliance heatmap + automation — Expiration alerts, readiness reports" },
-      { date: "Jul 2026", text: "Phase 1 UAT & Launch" },
-      { date: "Aug 2026", text: "Phase 2: Safety, Sites, Insurance, Transportation" },
-      { date: "Oct 2026", text: "Phase 2 UAT & Launch" },
-      { date: "Nov 2026", text: "Phase 3: Healthcare, Subsidy, Marketing, Evaluations" },
-      { date: "Jan 2027", text: "Phase 3 UAT & Launch" },
-      { date: "Feb 2027", text: "Phase 4: Escalation, Calendar, Content, Corporate, Advanced Reporting" },
-      { date: "May 2027", text: "Full Platform Launch — All 20 modules live" },
-    ];
-
-    // ────────────────────────────────────────────────────────────────────────
-    // DATA LOADING (from existing HTML files)
-    // ────────────────────────────────────────────────────────────────────────
-    const cache = {};
-
-    function cleanText(t) { return (t || "").replace(/\s+/g, " ").trim(); }
-
-    async function parseTable(file) {
-      try {
-        const res = await fetch(file);
-        const html = await res.text();
-        const doc = new DOMParser().parseFromString(html, "text/html");
-        const table = doc.querySelector("table.waffle");
-        if (!table) return { headers: [], rows: [] };
-        const rows = Array.from(table.querySelectorAll("tbody tr"));
-        if (!rows.length) return { headers: [], rows: [] };
-        const headerCells = rows[0].querySelectorAll("td, th");
-        const headers = Array.from(headerCells).map(c => cleanText(c.textContent));
-        const bodyRows = rows.slice(1).map(row =>
-          Array.from(row.querySelectorAll("td")).map(c => cleanText(c.textContent))
-        );
-        return { headers, rows: bodyRows.filter(r => r.some(c => c)) };
-      } catch (_) {
-        return { headers: [], rows: [] };
-      }
+async function autoImportAll() {
+  const sourceMods = MODULES.filter(m => m.source);
+  let imported = 0;
+  for (const mod of sourceMods) {
+    if (!getData(mod.id)) {
+      const result = await importModule(mod.id);
+      if (result) imported++;
     }
+  }
+  return imported;
+}
 
-    async function loadDataset(key) {
-      if (cache[key]) return cache[key];
-      const config = DATA_SOURCES[key];
-      if (!config) return null;
-      const files = Array.isArray(config.file) ? config.file : [config.file];
-      const tables = [];
-      for (const f of files) {
-        const t = await parseTable(f);
-        if (t.rows.length) tables.push(t);
-      }
-      if (!tables.length) return null;
-      const merged = tables.length === 1 ? tables[0] : {
-        headers: tables[0].headers,
-        rows: tables.flatMap(t => t.rows)
-      };
-      cache[key] = merged;
-      return merged;
+// ═══════════════════════════════════════════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+function statusClass(val) {
+  const v = (val || '').toLowerCase();
+  if (v.includes('needed') || v.includes('expir')) return 'st-needed';
+  if (v.includes('complete') || v.includes('confirm') || v.includes('verified') || v.includes('done') || v.includes('pass') || v.includes('signed') || v.includes('approved')) return 'st-complete';
+  if (v.includes('n/a') || v === 'na' || v === '—' || v === '-') return 'st-na';
+  if (v.includes('pending') || v.includes('overdue') || v.includes('missing') || v.includes('rejected')) return 'st-pending';
+  return '';
+}
+
+function openModal(title, bodyHtml) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = bodyHtml;
+  document.getElementById('modalOverlay').classList.add('visible');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('visible'); }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EDITABLE TABLE
+// ═══════════════════════════════════════════════════════════════════════════
+function renderEditableTable(containerId, moduleId, searchQuery) {
+  const container = document.getElementById(containerId);
+  const mod = getModule(moduleId);
+  let data = getData(moduleId);
+
+  if (!data || !data.headers || !data.headers.length) {
+    // No data yet
+    let html = '<div class="empty-state"><p>No data loaded for this module.</p>';
+    if (mod && mod.source) {
+      html += `<button class="btn btn-primary" onclick="doImport('${moduleId}')">Import from Source File</button> `;
     }
-
-    // ────────────────────────────────────────────────────────────────────────
-    // TABLE RENDERING
-    // ────────────────────────────────────────────────────────────────────────
-    function renderDataTable(container, headers, rows, opts = {}) {
-      const { statusColumns = [], clickRow } = opts;
-      const table = document.createElement("table");
-      const thead = document.createElement("thead");
-      const tr = document.createElement("tr");
-      headers.forEach(h => { const th = document.createElement("th"); th.textContent = h || "—"; tr.appendChild(th); });
-      thead.appendChild(tr);
-      table.appendChild(thead);
-
-      const tbody = document.createElement("tbody");
-      rows.forEach(row => {
-        if (!row.some(c => c)) return;
-        const r = document.createElement("tr");
-        if (clickRow) r.classList.add("clickable");
-        row.forEach((cell, i) => {
-          const td = document.createElement("td");
-          if (statusColumns.includes(i)) {
-            const pill = document.createElement("span");
-            const v = (cell||"").toLowerCase();
-            if (v.includes("needed")) pill.className = "pill pill-needed";
-            else if (v.includes("n/a") || v === "na") pill.className = "pill pill-na";
-            else if (v.includes("complete") || v.includes("confirm") || v.includes("verified")) pill.className = "pill pill-complete";
-            else if (v.includes("pending") || v.includes("expir")) pill.className = "pill pill-warning";
-            else pill.className = "pill pill-info";
-            pill.textContent = cell || "—";
-            td.appendChild(pill);
-          } else {
-            td.textContent = cell || "";
-          }
-          r.appendChild(td);
-        });
-        if (clickRow) r.addEventListener("click", () => clickRow(row));
-        tbody.appendChild(r);
-      });
-      table.appendChild(tbody);
-      container.innerHTML = "";
-      container.appendChild(table);
+    if (mod && mod.defaultHeaders) {
+      html += `<button class="btn" onclick="initEmpty('${moduleId}')">Create Empty Table</button>`;
+    } else if (!mod.source) {
+      html += `<button class="btn" onclick="promptHeaders('${moduleId}')">Create Table with Custom Columns</button>`;
     }
+    html += '</div>';
+    container.innerHTML = html;
+    return;
+  }
 
-    // ────────────────────────────────────────────────────────────────────────
-    // NAVIGATION
-    // ────────────────────────────────────────────────────────────────────────
-    const allPages = document.querySelectorAll(".page");
-    const allNavLinks = document.querySelectorAll(".nav-link");
-    const breadcrumb = document.getElementById("breadcrumbPage");
+  let rows = data.rows;
+  const q = (searchQuery || '').toLowerCase();
+  if (q) rows = rows.filter(r => r.join(' ').toLowerCase().includes(q));
 
-    function showPage(id) {
-      const target = document.getElementById("page-" + id);
-      if (!target) return;
-      allPages.forEach(p => p.classList.remove("active"));
-      allNavLinks.forEach(l => l.classList.remove("active"));
-      target.classList.add("active");
-      document.querySelectorAll(`.nav-link[data-page="${id}"]`).forEach(l => l.classList.add("active"));
-      const title = target.querySelector("h1")?.textContent || id;
-      breadcrumb.textContent = title;
-      window.location.hash = id;
-      if (initFunctions[id]) initFunctions[id]();
-    }
+  const isStatusCol = (mod && mod.statusCols) ? (i => mod.statusCols.includes(i)) : (_ => false);
 
-    allNavLinks.forEach(link => {
-      link.addEventListener("click", e => {
+  let html = '<div class="table-wrap"><table><thead><tr>';
+  data.headers.forEach((h, i) => {
+    html += `<th contenteditable="true" data-ci="${i}">${esc(h)}</th>`;
+  });
+  html += '<th class="action-col"></th></tr></thead><tbody>';
+
+  rows.forEach((row, ri) => {
+    html += `<tr>`;
+    data.headers.forEach((_, ci) => {
+      const val = row[ci] || '';
+      const cls = isStatusCol(ci) ? statusClass(val) : '';
+      html += `<td contenteditable="true" class="${cls}" data-ri="${ri}" data-ci="${ci}">${esc(val)}</td>`;
+    });
+    html += `<td class="action-col"><button class="btn-del" data-ri="${ri}" title="Delete row">&times;</button></td></tr>`;
+  });
+
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
+
+  // Event listeners
+  container.querySelectorAll('td[contenteditable], th[contenteditable]').forEach(el => {
+    el.addEventListener('blur', () => saveFromDOM(moduleId, container));
+    el.addEventListener('paste', e => { e.preventDefault(); document.execCommand('insertText', false, (e.clipboardData||window.clipboardData).getData('text/plain')); });
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); el.blur(); }
+      if (e.key === 'Tab') {
         e.preventDefault();
-        showPage(link.dataset.page);
+        const cells = Array.from(container.querySelectorAll('td[contenteditable], th[contenteditable]'));
+        const idx = cells.indexOf(el);
+        const next = e.shiftKey ? cells[idx-1] : cells[idx+1];
+        if (next) { next.focus(); const range = document.createRange(); range.selectNodeContents(next); const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range); }
+      }
+    });
+  });
+
+  container.querySelectorAll('.btn-del').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const ri = parseInt(btn.dataset.ri);
+      const d = getData(moduleId);
+      if (!d) return;
+      d.rows.splice(ri, 1);
+      setData(moduleId, d);
+      renderEditableTable(containerId, moduleId, searchQuery);
+      toast('Row deleted');
+    });
+  });
+}
+
+function saveFromDOM(moduleId, container) {
+  const table = container.querySelector('table');
+  if (!table) return;
+  const headers = Array.from(table.querySelectorAll('thead th:not(.action-col)')).map(th => th.textContent.trim());
+  const rows = Array.from(table.querySelectorAll('tbody tr')).map(tr =>
+    Array.from(tr.querySelectorAll('td:not(.action-col)')).map(td => td.textContent.trim())
+  );
+  setData(moduleId, { headers, rows });
+
+  // Re-apply status classes
+  const mod = getModule(moduleId);
+  if (mod && mod.statusCols) {
+    table.querySelectorAll('tbody td[data-ci]').forEach(td => {
+      const ci = parseInt(td.dataset.ci);
+      if (mod.statusCols.includes(ci)) {
+        td.className = statusClass(td.textContent.trim());
+      }
+    });
+  }
+}
+
+function addRow(moduleId, containerId, searchEl) {
+  const data = getData(moduleId);
+  if (!data || !data.headers.length) return;
+  const newRow = data.headers.map(() => '');
+  data.rows.push(newRow);
+  setData(moduleId, data);
+  const q = searchEl ? document.getElementById(searchEl)?.value : '';
+  renderEditableTable(containerId, moduleId, q);
+  // Scroll to bottom and focus first cell of new row
+  const container = document.getElementById(containerId);
+  const lastRow = container.querySelector('tbody tr:last-child td[contenteditable]');
+  if (lastRow) { lastRow.scrollIntoView({behavior:'smooth'}); lastRow.focus(); }
+  toast('Row added — click cells to edit');
+}
+
+function addColumn(moduleId, containerId, searchEl) {
+  const name = prompt('Column name:');
+  if (!name) return;
+  const data = getData(moduleId);
+  if (!data) return;
+  data.headers.push(name.trim());
+  data.rows.forEach(r => r.push(''));
+  setData(moduleId, data);
+  const q = searchEl ? document.getElementById(searchEl)?.value : '';
+  renderEditableTable(containerId, moduleId, q);
+  toast('Column "' + name.trim() + '" added');
+}
+
+async function doImport(moduleId) {
+  if (getData(moduleId)) {
+    if (!confirm('This will overwrite existing data for this module. Continue?')) return;
+  }
+  toast('Importing…');
+  const result = await importModule(moduleId);
+  if (result) {
+    toast('Imported ' + result.rows.length + ' rows');
+    const containerId = 'table-' + moduleId;
+    renderEditableTable(containerId, moduleId);
+    if (moduleId === 'compliance' || moduleId === 'programs' || moduleId === 'vendors' || moduleId === 'insurance' || moduleId === 'participants') {
+      renderDashboard();
+    }
+  } else {
+    toast('Import failed — source file not found or empty');
+  }
+}
+
+function initEmpty(moduleId) {
+  const mod = getModule(moduleId);
+  if (!mod || !mod.defaultHeaders) return;
+  setData(moduleId, { headers: [...mod.defaultHeaders], rows: [] });
+  renderEditableTable('table-' + moduleId, moduleId);
+  toast('Empty table created — add rows to get started');
+}
+
+function promptHeaders(moduleId) {
+  const input = prompt('Enter column names separated by commas:');
+  if (!input) return;
+  const headers = input.split(',').map(s => s.trim()).filter(Boolean);
+  if (!headers.length) return;
+  setData(moduleId, { headers, rows: [] });
+  renderEditableTable('table-' + moduleId, moduleId);
+  toast('Table created with ' + headers.length + ' columns');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════════════════════════════════════════
+function exportCSV(moduleId) {
+  const data = getData(moduleId);
+  if (!data) { toast('No data to export'); return; }
+  const csv = [data.headers.join(','), ...data.rows.map(r => r.map(c => '"' + (c||'').replace(/"/g,'""') + '"').join(','))].join('\n');
+  const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = moduleId + '-export.csv'; a.click();
+  toast('Exported ' + moduleId + '.csv');
+}
+
+function exportAllCSV() {
+  const store = getStore();
+  let count = 0;
+  for (const key of Object.keys(store)) {
+    if (key.startsWith('_')) continue;
+    const data = store[key];
+    if (!data || !data.headers) continue;
+    const csv = [data.headers.join(','), ...data.rows.map(r => r.map(c => '"' + (c||'').replace(/"/g,'""') + '"').join(','))].join('\n');
+    const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = key + '-export.csv'; a.click();
+    count++;
+  }
+  toast('Exported ' + count + ' files');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════════════════
+function buildNav() {
+  const nav = document.getElementById('navRail');
+  let html = `<div class="nav-header"><div class="logo-icon">J</div><div class="logo-text">JMC Platform<small>Internal Dashboards</small></div></div><div class="nav-links">`;
+
+  let lastSection = '';
+  MODULES.forEach(mod => {
+    if (mod.section !== lastSection) {
+      html += `<div class="nav-section-label">${mod.section}</div>`;
+      lastSection = mod.section;
+    }
+    html += `<a class="nav-link${mod.id === 'dashboard' ? ' active' : ''}" data-page="${mod.id}">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">${mod.icon}</svg>
+      ${mod.title}
+    </a>`;
+  });
+
+  html += `</div><div class="nav-footer">JMC Platform · localStorage</div>`;
+  nav.innerHTML = html;
+
+  nav.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', e => { e.preventDefault(); showPage(link.dataset.page); });
+  });
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  if (page) page.classList.add('active');
+  document.querySelectorAll(`.nav-link[data-page="${id}"]`).forEach(l => l.classList.add('active'));
+  document.getElementById('breadcrumb').textContent = (getModule(id) || {}).title || id;
+  window.location.hash = id;
+
+  // Initialize module table on first view
+  if (id !== 'dashboard' && id !== 'settings') {
+    renderEditableTable('table-' + id, id);
+  }
+  if (id === 'dashboard') renderDashboard();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PAGE GENERATION
+// ═══════════════════════════════════════════════════════════════════════════
+function buildPages() {
+  const content = document.getElementById('appContent');
+  let html = '';
+
+  // Dashboard page
+  html += `<section id="page-dashboard" class="page active">
+    <div class="page-header"><h1>Executive Dashboard</h1><p>Auto-computed from all module data — import source files to populate</p></div>
+    <div id="dash-alerts"></div>
+    <div class="kpi-grid" id="dash-kpis"></div>
+    <div class="grid-2">
+      <div class="card"><h2>Compliance Status by Camp</h2><div class="desc">Derived from Compliance Checklist data</div><div id="dash-heatmap"></div></div>
+      <div class="card"><h2>Data Summary</h2><div class="desc">Row counts across all modules</div><div id="dash-summary"></div></div>
+    </div>
+  </section>`;
+
+  // Module pages
+  MODULES.forEach(mod => {
+    if (mod.id === 'dashboard') return;
+    if (mod.id === 'settings') {
+      html += buildSettingsPage();
+      return;
+    }
+    const searchId = 'search-' + mod.id;
+    const tableId = 'table-' + mod.id;
+    const sourceLinks = mod.source
+      ? (Array.isArray(mod.source) ? mod.source : [mod.source]).map(f => `<a href="${f}" target="_blank">${f}</a>`).join(' · ')
+      : '';
+
+    html += `<section id="page-${mod.id}" class="page">
+      <div class="page-header"><h1>${esc(mod.title)}</h1><p>${esc(mod.desc)}</p></div>
+      <div class="toolbar">
+        <input type="search" id="${searchId}" placeholder="Search ${mod.title.toLowerCase()}…" oninput="renderEditableTable('${tableId}','${mod.id}',this.value)" />
+        <button class="btn btn-primary btn-sm" onclick="addRow('${mod.id}','${tableId}','${searchId}')">+ Add Row</button>
+        <button class="btn btn-sm" onclick="addColumn('${mod.id}','${tableId}','${searchId}')">+ Column</button>
+        ${mod.source ? `<button class="btn btn-sm" onclick="doImport('${mod.id}')">↻ Re-import Source</button>` : ''}
+        <button class="btn btn-sm" onclick="exportCSV('${mod.id}')">Export CSV</button>
+        <button class="btn btn-danger btn-sm" onclick="if(confirm('Delete all data for ${mod.title}?')){clearData('${mod.id}');renderEditableTable('${tableId}','${mod.id}');toast('Data cleared')}">Clear</button>
+      </div>
+      <div id="${tableId}"></div>
+      ${sourceLinks ? `<div class="source-link">Source: ${sourceLinks}</div>` : ''}
+    </section>`;
+  });
+
+  content.innerHTML = html;
+}
+
+function buildSettingsPage() {
+  return `<section id="page-settings" class="page">
+    <div class="page-header"><h1>Settings & Admin</h1><p>Data management, import/export, and platform info</p></div>
+    <div class="grid-2">
+      <div class="card">
+        <h2>Bulk Import from Source Files</h2>
+        <div class="desc">Import data from all available HTML source files. Existing data for each module will be overwritten.</div>
+        <button class="btn btn-primary" onclick="bulkImport()">Import All Source Files</button>
+        <div id="importStatus" style="margin-top:10px;font-size:12px;color:var(--muted)"></div>
+      </div>
+      <div class="card">
+        <h2>Export</h2>
+        <div class="desc">Download all module data as CSV files.</div>
+        <button class="btn btn-primary" onclick="exportAllCSV()">Export All Modules (CSV)</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Data Status</h2>
+      <div class="desc">Current data across all modules</div>
+      <div class="table-wrap"><table><thead><tr><th>Module</th><th>Rows</th><th>Source File</th><th>Last Updated</th><th>Actions</th></tr></thead>
+      <tbody id="settingsDataTable"></tbody></table></div>
+    </div>
+    <div class="card">
+      <h2>Danger Zone</h2>
+      <div class="desc">Irreversible actions</div>
+      <button class="btn btn-danger" onclick="if(confirm('This will delete ALL data from localStorage. Are you sure?')){localStorage.removeItem('${STORE_KEY}');location.reload()}">Clear All Data & Reset</button>
+    </div>
+  </section>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DASHBOARD (auto-computed)
+// ═══════════════════════════════════════════════════════════════════════════
+function renderDashboard() {
+  const programs = getData('programs');
+  const compliance = getData('compliance');
+  const vendors = getData('vendors');
+  const insurance = getData('insurance');
+  const participants = getData('participants');
+  const trainings = getData('trainings');
+  const escalations = getData('escalations');
+  const costs = getData('finance') || getData('costs');
+
+  // ── KPIs ──
+  const programCount = programs ? programs.rows.length : 0;
+  const vendorCount = vendors ? vendors.rows.length : 0;
+  const insuranceCount = insurance ? insurance.rows.length : 0;
+  const participantCount = participants ? participants.rows.length : 0;
+  const trainingCount = trainings ? trainings.rows.length : 0;
+
+  let compRate = 0;
+  let compNeeded = 0;
+  if (compliance && compliance.rows.length) {
+    const mod = getModule('compliance');
+    const sCols = mod.statusCols || [];
+    let total = 0, complete = 0;
+    compliance.rows.forEach(r => {
+      sCols.forEach(ci => {
+        const v = (r[ci]||'').toLowerCase();
+        if (v && v !== 'n/a' && v !== 'na' && v !== '—') {
+          total++;
+          if (v.includes('complete') || v.includes('confirm') || v.includes('done') || v.includes('pass') || v.includes('verified') || v.includes('yes')) complete++;
+          else compNeeded++;
+        }
       });
     });
+    compRate = total > 0 ? Math.round((complete / total) * 100) : 0;
+  }
 
-    if (window.location.hash) {
-      const page = window.location.hash.slice(1);
-      if (document.getElementById("page-" + page)) showPage(page);
-    }
+  const openEscalations = escalations ? escalations.rows.filter(r => {
+    const status = (r[6]||'').toLowerCase();
+    return status && !status.includes('resolved') && !status.includes('closed');
+  }).length : 0;
 
-    // ────────────────────────────────────────────────────────────────────────
-    // DASHBOARD INIT
-    // ────────────────────────────────────────────────────────────────────────
-    const initFlags = {};
+  const kpis = document.getElementById('dash-kpis');
+  kpis.innerHTML = `
+    <div class="kpi-card"><span class="kpi-label">Programs</span><div class="kpi-value">${programCount}</div></div>
+    <div class="kpi-card ${compRate >= 80 ? 'green' : compRate >= 50 ? 'yellow' : compRate > 0 ? 'red' : ''}"><span class="kpi-label">Compliance Rate</span><div class="kpi-value">${compRate > 0 ? compRate + '%' : '—'}</div></div>
+    <div class="kpi-card ${compNeeded > 0 ? 'yellow' : ''}"><span class="kpi-label">Compliance Items Needed</span><div class="kpi-value">${compNeeded || '—'}</div></div>
+    <div class="kpi-card ${openEscalations > 0 ? 'red' : ''}"><span class="kpi-label">Open Escalations</span><div class="kpi-value">${openEscalations || '0'}</div></div>
+    <div class="kpi-card"><span class="kpi-label">Vendors</span><div class="kpi-value">${vendorCount || '—'}</div></div>
+    <div class="kpi-card"><span class="kpi-label">Insurance Policies</span><div class="kpi-value">${insuranceCount || '—'}</div></div>
+    <div class="kpi-card"><span class="kpi-label">Participants</span><div class="kpi-value">${participantCount || '—'}</div></div>
+    <div class="kpi-card"><span class="kpi-label">Trainings</span><div class="kpi-value">${trainingCount || '—'}</div></div>
+  `;
 
-    async function initDashboard() {
-      if (initFlags.dashboard) return;
-      initFlags.dashboard = true;
+  // ── Alerts ──
+  const alerts = document.getElementById('dash-alerts');
+  let alertHtml = '';
+  if (!isInitialized() && programCount === 0) {
+    alertHtml += '<div class="alert-bar info">📥 <strong>Getting Started:</strong> Go to <a href="#settings" onclick="showPage(\'settings\')">Settings</a> to import data from your source files, or navigate to any module and click "Import from Source File".</div>';
+  }
+  if (compNeeded > 0) {
+    alertHtml += `<div class="alert-bar warn">⏰ <strong>Compliance:</strong> ${compNeeded} items across camps still marked as "Needed". <a href="#compliance" onclick="showPage('compliance')">View Compliance →</a></div>`;
+  }
+  if (openEscalations > 0) {
+    alertHtml += `<div class="alert-bar err">⚠️ <strong>Escalations:</strong> ${openEscalations} open escalation(s). <a href="#escalations" onclick="showPage('escalations')">View Escalations →</a></div>`;
+  }
+  if (programCount > 0 && compNeeded === 0 && openEscalations === 0) {
+    alertHtml += '<div class="alert-bar ok">✅ All clear — no urgent items.</div>';
+  }
+  alerts.innerHTML = alertHtml;
 
-      // Load data counts
-      const compliance = await loadDataset("compliance");
-      const vendors = await loadDataset("vendors");
-      const participants = await loadDataset("participants");
+  // ── Compliance Heatmap ──
+  const heatmap = document.getElementById('dash-heatmap');
+  if (compliance && compliance.rows.length) {
+    const mod = getModule('compliance');
+    const sCols = mod.statusCols || [];
+    const reqHeaders = sCols.map(ci => compliance.headers[ci] || `Col ${ci}`);
+    const camps = compliance.rows;
 
-      if (compliance) {
-        const total = compliance.rows.length * 7;
-        const needed = compliance.rows.reduce((acc, r) => acc + r.filter(c => (c||"").toLowerCase().includes("needed")).length, 0);
-        const pct = total > 0 ? Math.round(((total - needed) / total) * 100) : 0;
-        document.getElementById("kpi-compliance").textContent = pct + "%";
-      }
+    let hmHtml = `<div class="heatmap" style="grid-template-columns:100px repeat(${reqHeaders.length},1fr)">`;
+    hmHtml += '<div class="hm-cell hm-hdr">Camp</div>';
+    reqHeaders.forEach(h => { hmHtml += `<div class="hm-cell hm-hdr">${esc(h)}</div>`; });
 
-      if (vendors) document.getElementById("kpi-vendors").textContent = vendors.rows.length;
-      if (participants) document.getElementById("kpi-participants") && (document.getElementById("kpi-participants").textContent = participants.rows.length);
-
-      // Camp grid
-      const campGrid = document.getElementById("campGrid");
-      campGrid.innerHTML = CAMPS.map(c => `
-        <div class="camp-card" onclick="showPage('compliance')">
-          <div class="camp-name">${c.name}</div>
-          <div class="camp-location">${c.location}</div>
-          <div class="camp-status">
-            <div class="status-dot ${c.status}"></div>
-            <span style="font-size:12px">${c.status === 'green' ? 'On Track' : c.status === 'yellow' ? 'Needs Attention' : 'At Risk'}</span>
-          </div>
-          <div class="camp-meta">
-            <span>Enrolled: ${c.enrolled}/${c.target}</span>
-            <span>Comp: ${c.compliance}%</span>
-          </div>
-          <div style="margin-top:8px">
-            <div class="progress-bar"><div class="fill ${c.compliance >= 90 ? 'green' : c.compliance >= 70 ? 'yellow' : 'red'}" style="width:${c.compliance}%"></div></div>
-          </div>
-        </div>
-      `).join("");
-
-      // Compliance heatmap (dashboard version)
-      buildHeatmap("complianceHeatmap");
-
-      // Financial overview
-      buildFinancialBars("financialOverview");
-
-      // Enrollment tracker
-      buildEnrollmentTracker("enrollmentTracker");
-
-      // Incident trends
-      buildIncidentTrends("incidentTrends");
-
-      // Deadlines table
-      const tbody = document.getElementById("deadlinesBody");
-      tbody.innerHTML = DEADLINES.map(d => `
-        <tr>
-          <td><strong>${d.date}</strong></td>
-          <td><span class="pill pill-info">${d.module}</span></td>
-          <td>${d.camp}</td>
-          <td>${d.item}</td>
-          <td><span class="pill ${d.status === 'Urgent' ? 'pill-error' : d.status === 'Warning' ? 'pill-warning' : d.status === 'In Progress' ? 'pill-info' : 'pill-na'}">${d.status}</span></td>
-        </tr>
-      `).join("");
-    }
-
-    function buildHeatmap(containerId) {
-      const container = document.getElementById(containerId);
-      const cols = COMPLIANCE_REQS.length + 1;
-      container.innerHTML = `
-        <div class="heatmap" style="grid-template-columns: 120px repeat(${COMPLIANCE_REQS.length}, 1fr)">
-          <div class="heatmap-cell header">Camp</div>
-          ${COMPLIANCE_REQS.map(r => `<div class="heatmap-cell header">${r}</div>`).join("")}
-          ${CAMPS.filter(c => c.state).map(camp => {
-            return `<div class="heatmap-cell header" style="text-align:left">${camp.name}</div>` +
-              COMPLIANCE_REQS.map(req => {
-                const isNA = (req.includes("*") && !((req.includes("Mandated") && camp.state === "GA") || (req.includes("Finger") && camp.state === "FL")));
-                if (isNA) return `<div class="heatmap-cell gray">N/A</div>`;
-                const v = 60 + Math.floor(Math.random() * 40);
-                const cls = v >= 95 ? "green" : v >= 80 ? "yellow" : v >= 60 ? "orange" : "red";
-                return `<div class="heatmap-cell ${cls}">${v}%</div>`;
-              }).join("");
-          }).join("")}
-        </div>
-      `;
-    }
-
-    function buildFinancialBars(containerId) {
-      const container = document.getElementById(containerId);
-      const finData = CAMPS.filter(c => c.state).slice(0, 8).map(c => ({
-        name: c.name,
-        budget: Math.round(80000 + Math.random() * 200000),
-        actual: Math.round(40000 + Math.random() * 150000),
-      }));
-      container.innerHTML = finData.map(d => {
-        const pct = Math.round((d.actual / d.budget) * 100);
-        return `
-          <div style="margin-bottom:10px">
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
-              <span><strong>${d.name}</strong></span>
-              <span style="color:var(--muted)">$${(d.actual/1000).toFixed(0)}K / $${(d.budget/1000).toFixed(0)}K (${pct}%)</span>
-            </div>
-            <div class="progress-bar"><div class="fill ${pct > 90 ? 'red' : pct > 70 ? 'yellow' : 'blue'}" style="width:${Math.min(pct,100)}%"></div></div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function buildEnrollmentTracker(containerId) {
-      const container = document.getElementById(containerId);
-      container.innerHTML = CAMPS.filter(c => c.state).map(c => {
-        const pct = Math.round((c.enrolled / c.target) * 100);
-        return `
-          <div style="margin-bottom:10px">
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
-              <span><strong>${c.name}</strong></span>
-              <span style="color:var(--muted)">${c.enrolled} / ${c.target} (${pct}%)</span>
-            </div>
-            <div class="progress-bar"><div class="fill ${pct >= 90 ? 'green' : pct >= 70 ? 'blue' : 'yellow'}" style="width:${Math.min(pct,100)}%"></div></div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function buildIncidentTrends(containerId) {
-      const container = document.getElementById(containerId);
-      const months = ["Sep", "Oct", "Nov", "Dec", "Jan", "Feb"];
-      const data = [2, 5, 3, 7, 4, 3];
-      const max = Math.max(...data);
-      container.innerHTML = `
-        <div style="display:flex;align-items:flex-end;gap:8px;height:140px;padding:10px 0">
-          ${months.map((m, i) => `
-            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
-              <span style="font-size:11px;font-weight:600;color:var(--ink)">${data[i]}</span>
-              <div style="width:100%;background:${data[i] >= 5 ? 'var(--error-bg)' : 'var(--accent-soft)'};border-radius:4px 4px 0 0;height:${(data[i]/max)*100}px;transition:height 0.3s"></div>
-              <span style="font-size:10px;color:var(--muted)">${m}</span>
-            </div>
-          `).join("")}
-        </div>
-        <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:4px">Monthly incident count — last 6 months</div>
-      `;
-    }
-
-    // ────────────────────────────────────────────────────────────────────────
-    // MODULES PAGE
-    // ────────────────────────────────────────────────────────────────────────
-    function initModules() {
-      const grid = document.getElementById("moduleGrid");
-      grid.innerHTML = MODULES.map(m => `
-        <div class="module-card" onclick="showPage('${m.id}')">
-          <div class="module-icon" style="background:${m.phase===1?'#dbeafe':m.phase===2?'#fef3c7':m.phase===3?'#d1fae5':'#ede9fe'}">${m.icon}</div>
-          <h3>${m.name}</h3>
-          <p>${m.desc}</p>
-          <div style="margin-top:8px"><span class="phase-badge phase-${m.phase}">Phase ${m.phase}</span></div>
-        </div>
-      `).join("");
-    }
-
-    // ────────────────────────────────────────────────────────────────────────
-    // COMPLIANCE PAGE
-    // ────────────────────────────────────────────────────────────────────────
-    async function initCompliance() {
-      if (initFlags.compliance) return;
-      initFlags.compliance = true;
-
-      buildHeatmap("compHeatmapFull");
-
-      const data = await loadDataset("compliance");
-      const container = document.querySelector("#page-compliance [data-table='compliance']");
-      if (!data || !container) return;
-      const statusCols = [3,4,5,6,7,8,9];
-
-      function apply() {
-        let f = data.rows;
-        const q = (document.getElementById("searchCompliance")?.value || "").toLowerCase();
-        const s = document.getElementById("filterComplianceStatus")?.value;
-        if (q) f = f.filter(r => r.join(" ").toLowerCase().includes(q));
-        if (s) f = f.filter(r => r.some((c,i) => statusCols.includes(i) && (c||"").includes(s)));
-        renderDataTable(container, data.headers, f, { statusColumns: statusCols });
-      }
-
-      document.getElementById("searchCompliance")?.addEventListener("input", apply);
-      document.getElementById("filterComplianceStatus")?.addEventListener("change", apply);
-
-      const needed = data.rows.reduce((acc, r) => acc + r.filter(c => (c||"").toLowerCase().includes("needed")).length, 0);
-      document.getElementById("kpi-comp-noncompliant").textContent = needed;
-      const total = data.rows.length * 7;
-      const pct = total > 0 ? Math.round(((total - needed) / total) * 100) : 0;
-      document.getElementById("kpi-comp-rate").textContent = pct + "%";
-
-      apply();
-    }
-
-    // ────────────────────────────────────────────────────────────────────────
-    // SAFETY PAGE
-    // ────────────────────────────────────────────────────────────────────────
-    function initSafety() {
-      if (initFlags.safety) return;
-      initFlags.safety = true;
-
-      document.getElementById("incidentLog").innerHTML = INCIDENTS.map(inc => `
-        <tr>
-          <td><strong>${inc.id}</strong></td>
-          <td>${inc.date}</td>
-          <td>${inc.camp}</td>
-          <td>${inc.type}</td>
-          <td><span class="pill severity-${inc.sev}" style="padding:2px 8px;border-radius:6px;font-size:11px">Sev ${inc.sev}</span></td>
-          <td><span class="pill ${inc.status==='Closed'?'pill-na':inc.status==='Resolved'?'pill-success':'pill-warning'}">${inc.status}</span></td>
-          <td>${inc.assignee}</td>
-        </tr>
-      `).join("");
-
-      const inspData = [
-        ["Pine Crest Camp", "Olympia", "Jan 15, 2026", "Pass", "Pass", "Pass", "Pass", "green"],
-        ["Lakewood Retreat", "Mosaic", "Jan 20, 2026", "Pass", "Needs Follow-Up", "Pass", "Pass", "yellow"],
-        ["Heritage Center", "Al Ilm", "—", "Pending", "Pending", "Pending", "Pending", "red"],
-        ["Summit Lodge", "Changemakers", "Feb 01, 2026", "Pass", "Pass", "Pass", "Pass", "green"],
-      ];
-      document.getElementById("inspectionTable").innerHTML = inspData.map(r => `
-        <tr>
-          <td><strong>${r[0]}</strong></td><td>${r[1]}</td><td>${r[2]}</td>
-          <td><span class="pill ${r[3]==='Pass'?'pill-success':'pill-warning'}">${r[3]}</span></td>
-          <td><span class="pill ${r[4]==='Pass'?'pill-success':'pill-warning'}">${r[4]}</span></td>
-          <td><span class="pill ${r[5]==='Pass'?'pill-success':'pill-warning'}">${r[5]}</span></td>
-          <td><span class="pill ${r[6]==='Pass'?'pill-success':'pill-warning'}">${r[6]}</span></td>
-          <td><div class="status-dot ${r[7]}" style="width:10px;height:10px;border-radius:50%;display:inline-block"></div></td>
-        </tr>
-      `).join("");
-    }
-
-    // ────────────────────────────────────────────────────────────────────────
-    // SITES PAGE
-    // ────────────────────────────────────────────────────────────────────────
-    function initSites() {
-      if (initFlags.sites) return;
-      initFlags.sites = true;
-      document.getElementById("sitesTable").innerHTML = SITES_DATA.map(s => `
-        <tr>
-          <td><strong>${s.name}</strong></td><td>${s.loc}</td><td>${s.camps}</td>
-          <td><span class="pill ${s.contract==='Signed'?'pill-success':'pill-warning'}">${s.contract}</span></td>
-          <td><span class="pill ${s.coi==='Verified'?'pill-success':s.coi==='Expiring Soon'?'pill-warning':'pill-info'}">${s.coi}</span></td>
-          <td>${s.exp}</td><td>${s.contact}</td>
-        </tr>
-      `).join("");
-    }
-
-    // ────────────────────────────────────────────────────────────────────────
-    // ESCALATION PAGE
-    // ────────────────────────────────────────────────────────────────────────
-    function initEscalation() {
-      if (initFlags.escalation) return;
-      initFlags.escalation = true;
-      document.getElementById("escalationTable").innerHTML = ESCALATIONS.map(e => `
-        <tr>
-          <td><strong>${e.id}</strong></td><td>${e.date}</td><td>${e.camp}</td><td>${e.cat}</td>
-          <td><span class="pill severity-${e.sev}" style="padding:2px 8px;border-radius:6px;font-size:11px">Sev ${e.sev}</span></td>
-          <td>${e.assignee}</td>
-          <td><span class="pill ${e.status==='Resolved'?'pill-success':'pill-warning'}">${e.status}</span></td>
-          <td>${e.days > 0 ? e.days + 'd' : '—'}</td>
-        </tr>
-      `).join("");
-
-      const badge = document.getElementById("escBadge");
-      const openCount = ESCALATIONS.filter(e => e.status !== "Resolved").length;
-      if (openCount > 0) { badge.textContent = openCount; badge.style.display = "inline"; }
-    }
-
-    // ────────────────────────────────────────────────────────────────────────
-    // PROGRAMS, VENDORS, INSURANCE, CALENDAR, PEOPLE (data-driven)
-    // ────────────────────────────────────────────────────────────────────────
-    async function initPrograms() {
-      if (initFlags.programs) return;
-      initFlags.programs = true;
-      const data = await loadDataset("programs");
-      const container = document.querySelector("#page-programs [data-table='programs']");
-      if (!data || !container) return;
-      let rows = data.rows;
-      const programTypes = [...new Set(rows.map(r => r[0]||"").filter(Boolean))].sort();
-      const cities = [...new Set(rows.map(r => r[1]||"").filter(Boolean))].sort();
-
-      const sel1 = document.getElementById("filterProgramType");
-      const sel2 = document.getElementById("filterCity");
-      if (sel1) sel1.innerHTML = '<option value="">All Programs</option>' + programTypes.map(o=>`<option value="${o}">${o}</option>`).join("");
-      if (sel2) sel2.innerHTML = '<option value="">All Cities</option>' + cities.map(o=>`<option value="${o}">${o}</option>`).join("");
-
-      function apply() {
-        let f = rows;
-        const pt = sel1?.value;
-        const c = sel2?.value;
-        const q = (document.getElementById("searchPrograms")?.value||"").toLowerCase();
-        if (pt) f = f.filter(r => (r[0]||"").includes(pt));
-        if (c) f = f.filter(r => (r[1]||"").includes(c));
-        if (q) f = f.filter(r => r.join(" ").toLowerCase().includes(q));
-        renderDataTable(container, data.headers, f, { statusColumns: [6,7] });
-      }
-      sel1?.addEventListener("change", apply);
-      sel2?.addEventListener("change", apply);
-      document.getElementById("searchPrograms")?.addEventListener("input", apply);
-      apply();
-    }
-
-    async function initFinance() {
-      if (initFlags.finance) return;
-      initFlags.finance = true;
-      const data = await loadDataset("vendors");
-      const container = document.querySelector("#page-finance [data-table='vendors']");
-      if (!data || !container) return;
-      renderDataTable(container, data.headers, data.rows);
-
-      buildFinancialBars("budgetVsActual");
-
-      const opContainer = document.getElementById("outstandingPayments");
-      opContainer.innerHTML = `
-        <div class="table-wrapper">
-          <table>
-            <thead><tr><th>Aging</th><th>Count</th><th>Total</th></tr></thead>
-            <tbody>
-              <tr><td>0–30 days</td><td>8</td><td>$12,400</td></tr>
-              <tr><td>31–60 days</td><td>4</td><td>$8,200</td></tr>
-              <tr><td>61–90 days</td><td>2</td><td>$5,600</td></tr>
-              <tr><td style="color:var(--error);font-weight:600">90+ days</td><td style="color:var(--error);font-weight:600">1</td><td style="color:var(--error);font-weight:600">$3,800</td></tr>
-            </tbody>
-          </table>
-        </div>
-      `;
-    }
-
-    async function initVendors() {
-      if (initFlags.vendorsFull) return;
-      initFlags.vendorsFull = true;
-      const data = await loadDataset("vendorsFull");
-      const container = document.querySelector("#page-vendors [data-table='vendorsFull']");
-      if (!data || !container) return;
-      let rows = data.rows;
-      const programs = [...new Set(rows.map(r => r[0]||"").filter(Boolean))].sort();
-      const sel = document.getElementById("filterVendorProgram");
-      if (sel) sel.innerHTML = '<option value="">All Programs</option>' + programs.map(p=>`<option value="${p}">${p}</option>`).join("");
-
-      function apply() {
-        let f = rows;
-        const p = sel?.value;
-        const q = (document.getElementById("searchVendors")?.value||"").toLowerCase();
-        if (p) f = f.filter(r => (r[0]||"").includes(p));
-        if (q) f = f.filter(r => r.join(" ").toLowerCase().includes(q));
-        renderDataTable(container, data.headers, f);
-      }
-      sel?.addEventListener("change", apply);
-      document.getElementById("searchVendors")?.addEventListener("input", apply);
-      apply();
-    }
-
-    async function initInsurance() {
-      if (initFlags.insurance) return;
-      initFlags.insurance = true;
-      const data = await loadDataset("insurance");
-      const container = document.querySelector("#page-insurance [data-table='insurance']");
-      if (!data || !container) return;
-
-      function apply() {
-        let f = data.rows;
-        const q = (document.getElementById("searchInsurance")?.value||"").toLowerCase();
-        if (q) f = f.filter(r => r.join(" ").toLowerCase().includes(q));
-        renderDataTable(container, data.headers, f);
-      }
-      document.getElementById("searchInsurance")?.addEventListener("input", apply);
-      apply();
-    }
-
-    async function initCalendar() {
-      if (initFlags.calendar) return;
-      initFlags.calendar = true;
-      const data = await loadDataset("calendar") || await loadDataset("trainings");
-      const container = document.querySelector("#page-calendar [data-table='calendar']");
-      if (!data || !container) return;
-
-      function apply() {
-        let f = data.rows;
-        const q = (document.getElementById("searchCal")?.value||"").toLowerCase();
-        if (q) f = f.filter(r => r.join(" ").toLowerCase().includes(q));
-        renderDataTable(container, data.headers, f);
-      }
-      document.getElementById("searchCal")?.addEventListener("input", apply);
-      apply();
-    }
-
-    async function initPeople() {
-      if (initFlags.people) return;
-      initFlags.people = true;
-      const data = await loadDataset("participants");
-      const container = document.querySelector("#page-people [data-table='participants']");
-      if (!data || !container) return;
-      let rows = data.rows;
-      const programs = [...new Set(rows.map(r => r[0]||"").filter(Boolean))].sort();
-      const sel = document.getElementById("filterParticipantProgram");
-      if (sel) sel.innerHTML = '<option value="">All Programs</option>' + programs.map(p=>`<option value="${p}">${p}</option>`).join("");
-
-      function apply() {
-        let f = rows;
-        const p = sel?.value;
-        const q = (document.getElementById("searchParticipants")?.value||"").toLowerCase();
-        if (p) f = f.filter(r => (r[0]||"").includes(p));
-        if (q) f = f.filter(r => r.join(" ").toLowerCase().includes(q));
-        renderDataTable(container, data.headers, f);
-      }
-      sel?.addEventListener("change", apply);
-      document.getElementById("searchParticipants")?.addEventListener("input", apply);
-      apply();
-
-      // Enrollment pipeline
-      buildEnrollmentTracker("enrollmentPipeline");
-
-      // Export
-      document.getElementById("exportParticipants")?.addEventListener("click", () => {
-        const csv = [data.headers.join(","), ...rows.map(r => r.map(c=>`"${(c||"").replace(/"/g,'""')}"`).join(","))].join("\n");
-        const a = document.createElement("a");
-        a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
-        a.download = "participants-export.csv";
-        a.click();
+    camps.forEach(row => {
+      const campName = row[0] || '—';
+      hmHtml += `<div class="hm-cell hm-hdr" style="text-align:left;font-size:10px">${esc(campName)}</div>`;
+      sCols.forEach(ci => {
+        const v = (row[ci]||'').toLowerCase();
+        let cls = 'hm-gray';
+        if (v.includes('complete') || v.includes('confirm') || v.includes('done') || v.includes('pass') || v.includes('verified') || v.includes('yes')) cls = 'hm-green';
+        else if (v.includes('needed') || v.includes('expir')) cls = 'hm-yellow';
+        else if (v.includes('pending') || v.includes('missing') || v.includes('overdue')) cls = 'hm-red';
+        hmHtml += `<div class="hm-cell ${cls}">${esc(row[ci]||'—')}</div>`;
       });
-    }
-
-    function initSettings() {
-      if (initFlags.settings) return;
-      initFlags.settings = true;
-      document.getElementById("roadmapTimeline").innerHTML = ROADMAP.map(r => `
-        <div class="timeline-item">
-          <div class="timeline-date">${r.date}</div>
-          <div class="timeline-text">${r.text}</div>
-        </div>
-      `).join("");
-    }
-
-    // Placeholder inits for modules without data sources yet
-    function initHealthcare() { if (initFlags.healthcare) return; initFlags.healthcare = true;
-      document.getElementById("healthFormStatus").innerHTML = CAMPS.filter(c=>c.state).map(c => {
-        const pct = 70 + Math.floor(Math.random()*30);
-        return `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><strong>${c.name}</strong><span style="color:var(--muted)">${pct}% reviewed</span></div><div class="progress-bar"><div class="fill ${pct>=90?'green':pct>=70?'blue':'yellow'}" style="width:${pct}%"></div></div></div>`;
-      }).join("");
-    }
-
-    function initSubsidy() { if (initFlags.subsidy) return; initFlags.subsidy = true;
-      document.getElementById("subsidyAllocation").innerHTML = CAMPS.filter(c=>c.state).slice(0,8).map(c => {
-        const req = Math.round(5000+Math.random()*20000); const app = Math.round(req*(0.6+Math.random()*0.35));
-        return `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><strong>${c.name}</strong><span style="color:var(--muted)">$${(app/1000).toFixed(1)}K / $${(req/1000).toFixed(1)}K approved</span></div><div class="progress-bar"><div class="fill green" style="width:${Math.round(app/req*100)}%"></div></div></div>`;
-      }).join("");
-    }
-
-    function initMarketing() { if (initFlags.marketing) return; initFlags.marketing = true;
-      const campaigns = [
-        { name: "Summer Camp Registration Push", camp: "All", status: "Live", type: "Email + Social" },
-        { name: "Mosaic Early Bird Discount", camp: "Mosaic", status: "Completed", type: "Email" },
-        { name: "Changemakers Awareness Week", camp: "Changemakers", status: "Planning", type: "Social Media" },
-        { name: "Al Ilm Parent Information Night", camp: "Al Ilm", status: "Under Review", type: "Event + Email" },
-      ];
-      document.getElementById("campaignBoard").innerHTML = `<div class="table-wrapper"><table><thead><tr><th>Campaign</th><th>Camp</th><th>Type</th><th>Status</th></tr></thead><tbody>${campaigns.map(c=>`<tr><td><strong>${c.name}</strong></td><td>${c.camp}</td><td>${c.type}</td><td><span class="pill ${c.status==='Live'?'pill-success':c.status==='Completed'?'pill-na':c.status==='Planning'?'pill-info':'pill-warning'}">${c.status}</span></td></tr>`).join("")}</tbody></table></div>`;
-    }
-
-    function initEvaluations() { if (initFlags.evaluations) return; initFlags.evaluations = true;
-      document.getElementById("evalResults").innerHTML = CAMPS.filter(c=>c.state).map(c => {
-        const score = (3.5+Math.random()*1.5).toFixed(1);
-        return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><span style="width:120px;font-size:13px;font-weight:600">${c.name}</span><div class="progress-bar" style="flex:1"><div class="fill ${score>=4?'green':score>=3.5?'blue':'yellow'}" style="width:${(score/5*100)}%"></div></div><span style="font-size:13px;font-weight:600">${score}/5</span></div>`;
-      }).join("");
-    }
-
-    function initContent() { if (initFlags.content) return; initFlags.content = true;
-      const stages = ["Vision", "Outline", "Draft", "Review", "Final"];
-      const items = [
-        { title: "Olympia 2026 Curriculum", stage: "Final" },
-        { title: "Mosaic Activity Guide", stage: "Review" },
-        { title: "Safety Training Manual v3", stage: "Draft" },
-        { title: "Changemakers Workshop Plan", stage: "Outline" },
-        { title: "Parent Orientation Deck", stage: "Final" },
-      ];
-      document.getElementById("contentPipeline").innerHTML = `<div class="table-wrapper"><table><thead><tr><th>Content</th><th>Stage</th><th>Progress</th></tr></thead><tbody>${items.map(it=>{
-        const idx = stages.indexOf(it.stage); const pct = ((idx+1)/stages.length*100);
-        return `<tr><td><strong>${it.title}</strong></td><td><span class="pill ${it.stage==='Final'?'pill-success':it.stage==='Review'?'pill-warning':'pill-info'}">${it.stage}</span></td><td><div class="progress-bar" style="width:120px;display:inline-block"><div class="fill ${pct>=100?'green':pct>=60?'blue':'yellow'}" style="width:${pct}%"></div></div></td></tr>`;
-      }).join("")}</tbody></table></div>`;
-    }
-
-    function initTransportation() { if(initFlags.transportation) return; initFlags.transportation = true;
-      const buses = [
-        ["ABC Bus Co.", "Olympia", "Atlanta → Pine Crest", "Jun 15–20", "3", "$8,400", "Signed"],
-        ["Suncoast Transit", "Mosaic", "Miami → Lakewood", "Jul 1–8", "4", "$12,200", "Signed"],
-        ["Lone Star Coaches", "Al Ilm", "Dallas → Heritage", "Jun 22–28", "2", "$5,800", "Pending"],
-        ["Metro Lines", "Changemakers", "Atlanta → Summit", "Jul 10–15", "3", "$7,600", "Under Negotiation"],
-      ];
-      document.getElementById("busTable").innerHTML = buses.map(b=>`<tr><td>${b[0]}</td><td>${b[1]}</td><td>${b[2]}</td><td>${b[3]}</td><td>${b[4]}</td><td>${b[5]}</td><td><span class="pill ${b[6]==='Signed'?'pill-success':'pill-warning'}">${b[6]}</span></td></tr>`).join("");
-    }
-
-    // ────────────────────────────────────────────────────────────────────────
-    // INIT REGISTRY
-    // ────────────────────────────────────────────────────────────────────────
-    const initFunctions = {
-      dashboard: initDashboard,
-      modules: initModules,
-      compliance: initCompliance,
-      programs: initPrograms,
-      finance: initFinance,
-      vendors: initVendors,
-      people: initPeople,
-      insurance: initInsurance,
-      calendar: initCalendar,
-      safety: initSafety,
-      sites: initSites,
-      escalation: initEscalation,
-      settings: initSettings,
-      healthcare: initHealthcare,
-      subsidy: initSubsidy,
-      marketing: initMarketing,
-      evaluations: initEvaluations,
-      content: initContent,
-      transportation: initTransportation,
-    };
-
-    // ────────────────────────────────────────────────────────────────────────
-    // MODAL
-    // ────────────────────────────────────────────────────────────────────────
-    document.getElementById("modalClose")?.addEventListener("click", () => {
-      document.getElementById("detailModal").classList.remove("visible");
     });
+    hmHtml += '</div>';
+    heatmap.innerHTML = hmHtml;
+  } else {
+    heatmap.innerHTML = '<div class="empty-state"><p>Import Compliance data to see the heatmap.</p><button class="btn btn-sm btn-primary" onclick="doImport(\'compliance\');renderDashboard()">Import Compliance</button></div>';
+  }
 
-    // ────────────────────────────────────────────────────────────────────────
-    // STARTUP
-    // ────────────────────────────────────────────────────────────────────────
-    initDashboard();
-    initEscalation(); // Load badge count
-  </script>
+  // ── Data Summary ──
+  const summary = document.getElementById('dash-summary');
+  const allMods = MODULES.filter(m => m.id !== 'dashboard' && m.id !== 'settings');
+  let sumHtml = '<div class="table-wrap"><table><thead><tr><th>Module</th><th>Rows</th><th>Status</th></tr></thead><tbody>';
+  allMods.forEach(mod => {
+    const d = getData(mod.id);
+    const count = d ? d.rows.length : 0;
+    const status = count > 0 ? '<span style="color:var(--success);font-weight:600">● Active</span>' : '<span style="color:var(--muted)">○ Empty</span>';
+    sumHtml += `<tr style="cursor:pointer" onclick="showPage('${mod.id}')"><td><strong>${esc(mod.title)}</strong></td><td>${count}</td><td>${status}</td></tr>`;
+  });
+  sumHtml += '</tbody></table></div>';
+  summary.innerHTML = sumHtml;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SETTINGS PAGE
+// ═══════════════════════════════════════════════════════════════════════════
+function renderSettings() {
+  const tbody = document.getElementById('settingsDataTable');
+  if (!tbody) return;
+  const store = getStore();
+  let html = '';
+  MODULES.filter(m => m.id !== 'dashboard' && m.id !== 'settings').forEach(mod => {
+    const d = getData(mod.id);
+    const count = d ? d.rows.length : 0;
+    const src = mod.source ? (Array.isArray(mod.source) ? mod.source.join(', ') : mod.source) : '—';
+    html += `<tr>
+      <td><strong>${esc(mod.title)}</strong></td>
+      <td>${count}</td>
+      <td style="font-size:11px;color:var(--muted)">${src}</td>
+      <td style="font-size:11px;color:var(--muted)">${store._lastModified ? new Date(store._lastModified).toLocaleDateString() : '—'}</td>
+      <td>
+        ${mod.source ? `<button class="btn btn-sm" onclick="doImport('${mod.id}');renderSettings()">Import</button>` : ''}
+        <button class="btn btn-sm" onclick="exportCSV('${mod.id}')">Export</button>
+        <button class="btn btn-sm btn-danger" onclick="if(confirm('Clear ${mod.title} data?')){clearData('${mod.id}');renderSettings();toast('Cleared')}">Clear</button>
+      </td>
+    </tr>`;
+  });
+  tbody.innerHTML = html;
+}
+
+async function bulkImport() {
+  const statusEl = document.getElementById('importStatus');
+  statusEl.textContent = 'Importing…';
+  const sourceMods = MODULES.filter(m => m.source);
+  let imported = 0, failed = 0;
+  for (const mod of sourceMods) {
+    statusEl.textContent = `Importing ${mod.title}…`;
+    const result = await importModule(mod.id);
+    if (result) imported++; else failed++;
+  }
+  markInitialized();
+  statusEl.innerHTML = `<strong>Done!</strong> Imported ${imported} modules. ${failed > 0 ? failed + ' source files not found.' : ''}`;
+  renderSettings();
+  renderDashboard();
+  toast('Bulk import complete');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INITIALIZATION
+// ═══════════════════════════════════════════════════════════════════════════
+buildNav();
+buildPages();
+renderDashboard();
+
+// Auto-import on first visit
+if (!isInitialized()) {
+  autoImportAll().then(count => {
+    if (count > 0) {
+      markInitialized();
+      renderDashboard();
+      toast('Auto-imported ' + count + ' modules from source files');
+    }
+  });
+}
+
+// Handle URL hash
+if (window.location.hash) {
+  const page = window.location.hash.slice(1);
+  if (getModule(page)) showPage(page);
+}
+
+// Settings page init
+const observer = new MutationObserver(() => {
+  if (document.getElementById('page-settings')?.classList.contains('active')) renderSettings();
+});
+observer.observe(document.getElementById('appContent'), { attributes: true, subtree: true, attributeFilter: ['class'] });
+</script>
 </body>
 </html>
